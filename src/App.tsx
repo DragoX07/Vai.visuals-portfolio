@@ -7,16 +7,12 @@ import EnquirySection from './components/EnquirySection';
 import Footer from './components/Footer';
 import LightboxModal from './components/LightboxModal';
 import { StillPhoto, FilmProject } from './types';
-import { signInWithGoogle, logOut, fetchDriveAssets, auth } from './lib/gdrive';
-import { onAuthStateChanged } from 'firebase/auth';
 import { Camera, LogIn, LogOut, RefreshCw, X, ShieldAlert } from 'lucide-react';
 
 export default function App() {
   const [activeSection, setActiveSection] = useState('home');
-  const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
   
   // Google Drive state
-  const [driveUser, setDriveUser] = useState<{ name: string; email: string } | null>(null);
   const [drivePhotos, setDrivePhotos] = useState<StillPhoto[] | undefined>(undefined);
   const [driveVideos, setDriveVideos] = useState<FilmProject[] | undefined>(undefined);
   const [driveShowcaseVideoUrl, setDriveShowcaseVideoUrl] = useState<string | undefined>(undefined);
@@ -42,80 +38,43 @@ export default function App() {
     imageUrl: null,
   });
 
-  // Track Firebase Auth State for persistent login in session
+  // Remove Firebase Auth tracking and use a simple fetch on mount
   useEffect(() => {
-    if (!auth) return;
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        setDriveUser({
-          name: user.displayName || 'Authorized Creator',
-          email: user.email || '',
-        });
-        // ONLY use the authenticated Google Drive OAuth Access Token from localStorage
-        const token = localStorage.getItem('gdrive_oauth_token');
-        if (token) {
-          syncFromDrive(token);
+    const fetchAssets = async () => {
+      setIsSyncing(true);
+      setSyncError(null);
+      try {
+        const res = await fetch('/api/drive/assets');
+        if (!res.ok) {
+          try {
+            const errorData = await res.json();
+            throw new Error(errorData.error || 'Failed to fetch from API');
+          } catch (e) {
+            throw new Error(`Failed to fetch from API: HTTP ${res.status}`);
+          }
         }
-      } else {
-        setDriveUser(null);
-        setDrivePhotos(undefined);
-        setDriveVideos(undefined);
-        setDriveShowcaseVideoUrl(undefined);
-        setDriveShowcaseThumbnailUrl(undefined);
-        setDriveSourceInfo(undefined);
+        const data = await res.json();
+        setDrivePhotos(data.photos);
+        setDriveVideos(data.videos);
+        setDriveShowcaseVideoUrl(data.showcaseVideoUrl);
+        setDriveShowcaseThumbnailUrl(data.showcaseThumbnailUrl);
+        setDriveSourceInfo(data.sourceInfo);
+      } catch (err: any) {
+        console.error('Failed to fetch global drive assets:', err);
+        setSyncError('Could not load portfolio content. Ensure the folder is public and your GOOGLE_API_KEY is configured.');
+      } finally {
+        setIsSyncing(false);
       }
-    });
-    return () => unsubscribe();
+    };
+    fetchAssets();
   }, []);
 
-  const syncFromDrive = async (token: string) => {
-    setIsSyncing(true);
-    setSyncError(null);
-    try {
-      const data = await fetchDriveAssets(token);
-      setDrivePhotos(data.photos);
-      setDriveVideos(data.videos);
-      setDriveShowcaseVideoUrl(data.showcaseVideoUrl);
-      setDriveShowcaseThumbnailUrl(data.showcaseThumbnailUrl);
-      setDriveSourceInfo(data.sourceInfo);
-      localStorage.setItem('gdrive_oauth_token', token);
-    } catch (err: any) {
-      console.error('Failed to sync Google Drive:', err);
-      setSyncError('Failed to fetch pictures. Make sure your Drive has the requested files and you accepted permissions.');
-    } finally {
-      setIsSyncing(false);
-    }
-  };
-
   const handleConnectDrive = async () => {
-    try {
-      setSyncError(null);
-      const res = await signInWithGoogle();
-      if (res) {
-        setDriveUser({
-          name: res.user.displayName || 'Authorized Creator',
-          email: res.user.email || '',
-        });
-        await syncFromDrive(res.token);
-      }
-    } catch (err: any) {
-      console.error(err);
-      setSyncError(err.message || 'Authentication failed. Please verify setup.');
-    }
+    // Legacy function, no-op since it's now public
   };
 
   const handleDisconnectDrive = async () => {
-    try {
-      await logOut();
-      localStorage.removeItem('gdrive_oauth_token');
-      setDriveUser(null);
-      setDrivePhotos(undefined);
-      setDriveVideos(undefined);
-      setDriveSourceInfo(undefined);
-      setSyncError(null);
-    } catch (err) {
-      console.error(err);
-    }
+    // Legacy function
   };
 
   // Track active scrolls using IntersectionObserver API
@@ -187,6 +146,11 @@ export default function App() {
 
   return (
     <div id="vai-visuals-root" className="min-h-screen bg-cream text-charcoal select-text relative antialiased pb-12 sm:pb-0">
+      {syncError && (
+        <div className="fixed top-0 inset-x-0 z-[100] bg-red-100 border-b border-red-200 px-4 py-3 text-red-800 flex items-center justify-center gap-3 text-sm font-medium shadow-sm">
+          <span>⚠️ {syncError}</span>
+        </div>
+      )}
       
       {/* 1. Global Navigation Bar */}
       <Header activeSection={activeSection} scrollToSection={scrollToSection} />
@@ -216,145 +180,7 @@ export default function App() {
         onClose={handleCloseLightbox}
       />
 
-      {/* 8. Owner Live Studio Integration Widget */}
-      <div className="fixed bottom-6 right-6 z-40">
-        {!isAdminPanelOpen ? (
-          <button
-            onClick={() => setIsAdminPanelOpen(true)}
-            className="flex items-center gap-2.5 bg-[#C1440E] hover:bg-[#C1440E]/90 text-[#FAF5EE] rounded-full px-5 py-3.5 shadow-xl border border-white/5 transition-all select-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-terracotta group"
-            aria-label="Open Studio Controller"
-          >
-            <Camera className="w-5 h-5 text-[#FAF5EE] animate-pulse" />
-            <span className="text-xs uppercase font-sans font-bold tracking-[0.2em] max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-500 whitespace-nowrap">
-              Studio Sync Panel
-            </span>
-          </button>
-        ) : (
-          <div className="bg-white rounded-3xl p-6 shadow-2xl border border-cream-dark w-80 max-w-[calc(100vw-2rem)] flex flex-col gap-4">
-            <div className="flex justify-between items-center pb-3 border-b border-cream-dark">
-              <div>
-                <h3 className="font-serif font-bold text-gray-900 text-sm tracking-wide">Studio Sync Center</h3>
-                <p className="text-[10px] font-mono text-gray-500 uppercase tracking-widest mt-0.5">Google Drive Live CMS</p>
-              </div>
-              <button
-                onClick={() => setIsAdminPanelOpen(false)}
-                className="w-7 h-7 bg-cream hover:bg-cream-dark text-charcoal flex items-center justify-center rounded-full transition-colors cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
 
-            {driveUser ? (
-              <div className="space-y-4">
-                <div className="flex items-center gap-3 bg-[#FAF5EE] rounded-2xl p-3 border border-[#EBE3D3]">
-                  <div className="w-8 h-8 rounded-full bg-gold flex items-center justify-center text-[#2C1A0E] font-bold text-xs">
-                    {driveUser.name[0]}
-                  </div>
-                  <div className="overflow-hidden">
-                    <h4 className="font-serif font-medium text-xs text-charcoal truncate">{driveUser.name}</h4>
-                    <p className="text-[9px] font-mono text-[#2C1A0E]/60 truncate">{driveUser.email}</p>
-                  </div>
-                </div>
-
-                <div className="text-xs font-sans text-charcoal/80 space-y-2 border-t border-[#F2E9D8] pt-3">
-                  <div className="flex justify-between">
-                    <span>Stills Synced:</span>
-                    <strong className="text-terracotta font-mono font-bold">
-                      {isSyncing ? '...' : drivePhotos?.length || 0} / 25
-                    </strong>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Videos Synced:</span>
-                    <strong className="text-terracotta font-mono font-bold">
-                      {isSyncing ? '...' : driveVideos?.length || 0}
-                    </strong>
-                  </div>
-                </div>
-
-                {driveSourceInfo && (
-                  <div className="bg-[#FAF5EE] rounded-2xl p-3 border border-[#EBE3D3] space-y-2 text-[10px] font-sans text-charcoal/80">
-                    <span className="font-semibold block uppercase tracking-wider text-[8px] text-[#2C1A0E]/60 mb-1">Folder Mapping Status</span>
-                    
-                    <div className="flex justify-between items-center bg-[#F2E9D8]/50 px-2.5 py-1.5 rounded-xl text-[9px] font-mono mb-1">
-                      <span className="text-[#2C1A0E]/60">Source Folder:</span>
-                      <strong className="text-terracotta uppercase tracking-wide truncate max-w-[120px]" title={driveSourceInfo.mainFolderName}>
-                        {driveSourceInfo.mainFolderName}
-                      </strong>
-                    </div>
-
-                    <div className="flex justify-between items-center">
-                      <span>photos subfolder</span>
-                      <span className={`px-1.5 py-0.5 rounded text-[9px] font-mono leading-none font-semibold ${driveSourceInfo.photosFolderFound ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-850'}`}>
-                        {driveSourceInfo.photosFolderFound ? 'LOADED' : 'FALLBACK'}
-                      </span>
-                    </div>
-
-                    <div className="flex justify-between items-center">
-                      <span>videos subfolder</span>
-                      <span className={`px-1.5 py-0.5 rounded text-[9px] font-mono leading-none font-semibold ${driveSourceInfo.videosFolderFound ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-850'}`}>
-                        {driveSourceInfo.videosFolderFound ? 'LOADED' : 'FALLBACK'}
-                      </span>
-                    </div>
-                  </div>
-                )}
-
-                {driveSourceInfo && !driveSourceInfo.mainFolderFound && (
-                  <div className="bg-amber-50 rounded-2xl p-3 border border-amber-100 text-[10px] font-sans text-amber-800 leading-relaxed">
-                    <div className="font-semibold flex items-center gap-1.5 mb-1 text-amber-900">
-                      <ShieldAlert className="w-3.5 h-3.5 text-[#C1440E]" />
-                      <span>Setup Support Tip</span>
-                    </div>
-                    No folder named <strong>&ldquo;Website&rdquo;</strong> at root. We loaded assets globally from your Google Drive, but for automatic categorisation please create a folder named <strong>&ldquo;Website&rdquo;</strong> with subfolders: <strong>&ldquo;Photography&rdquo;</strong> (with categories) and <strong>&ldquo;videos&rdquo;</strong>.
-                  </div>
-                )}
-
-                <div className="flex gap-2 pt-1">
-                  <button
-                    onClick={() => {
-                      const token = localStorage.getItem('gdrive_oauth_token');
-                      if (token) syncFromDrive(token);
-                    }}
-                    disabled={isSyncing}
-                    className="flex-1 bg-cream hover:bg-cream-dark text-charcoal py-2 rounded-xl text-[10px] font-sans font-bold tracking-widest uppercase flex items-center justify-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
-                  >
-                    <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
-                    <span>Refresh</span>
-                  </button>
-                  <button
-                    onClick={handleDisconnectDrive}
-                    className="flex-1 bg-gray-100 hover:bg-red-50 hover:text-red-700 py-2 rounded-xl text-[10px] font-sans font-bold tracking-widest uppercase flex items-center justify-center gap-1.5 transition-all text-gray-700 cursor-pointer"
-                  >
-                    <LogOut className="w-3.5 h-3.5" />
-                    <span>Unlink</span>
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <p className="text-xs text-gray-650 font-sans tracking-wide leading-relaxed">
-                  Log in to your connected Google Drive to automatically load your first 25 high-quality images and video portfolios live on this page!
-                </p>
-
-                {syncError && (
-                  <div className="flex items-start gap-2 bg-red-50 text-red-700 p-3 rounded-2xl border border-red-100 font-sans text-[10px]">
-                    <ShieldAlert className="w-4 h-4 shrink-0 text-red-600 mt-0.5" />
-                    <p className="leading-relaxed">{syncError}</p>
-                  </div>
-                )}
-
-                <button
-                  onClick={handleConnectDrive}
-                  disabled={isSyncing}
-                  className="w-full bg-[#C1440E] hover:bg-[#C1440E]/90 text-white py-3.5 rounded-xl text-[11px] font-sans font-bold tracking-widest uppercase flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md"
-                >
-                  <LogIn className="w-4 h-4" />
-                  <span>Connect Google Drive</span>
-                </button>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
 
     </div>
   );
