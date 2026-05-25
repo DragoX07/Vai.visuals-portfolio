@@ -36,9 +36,8 @@ export default function EnquirySection() {
     setLoading(true);
     
     try {
-      // Use Web3Forms access key from environment variable. 
-      // User must register teamssp.productions@gmail.com at web3forms.com to get this key.
-      const accessKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || 'YOUR_WEB3FORMS_ACCESS_KEY_HERE';
+      // Hardcode your actual Web3Forms access key below (get it from web3forms.com by registering teamssp.productions@gmail.com)
+      const accessKey = '790d9e6d-3f22-4e11-bacd-a0521bd1f4b0';
 
       const response = await fetch('https://api.web3forms.com/submit', {
         method: 'POST',
