@@ -1,5 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, User, signOut } from 'firebase/auth';
+import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
 import { StillPhoto, FilmProject } from '../types';
 
@@ -8,10 +9,12 @@ const isConfigured = firebaseConfig.apiKey && firebaseConfig.apiKey !== 'placeho
 
 let app;
 let auth: any = null;
+let db: any = null;
 if (isConfigured) {
   try {
     app = initializeApp(firebaseConfig);
     auth = getAuth(app);
+    db = getFirestore(app);
   } catch (error) {
     console.error('Error initializing Firebase:', error);
   }
@@ -22,7 +25,7 @@ const provider = new GoogleAuthProvider();
 provider.addScope('https://www.googleapis.com/auth/drive.readonly');
 provider.addScope('https://www.googleapis.com/auth/userinfo.profile');
 
-export { auth, provider };
+export { auth, provider, db };
 
 export interface DriveData {
   photos: StillPhoto[];
@@ -35,6 +38,36 @@ export interface DriveData {
     photosFolderFound: boolean;
     videosFolderFound: boolean;
   };
+}
+
+export async function savePortfolioToFirestore(data: DriveData): Promise<void> {
+  if (!db) throw new Error('Firestore not initialized');
+  // Firestore does not support undefined values, convert them to null
+  const cleanData = {
+    ...data,
+    showcaseVideoUrl: data.showcaseVideoUrl ?? null,
+    showcaseThumbnailUrl: data.showcaseThumbnailUrl ?? null,
+    sourceInfo: data.sourceInfo ?? null
+  };
+  await setDoc(doc(db, 'portfolio', 'main'), cleanData);
+}
+
+export async function fetchPortfolioFromFirestore(): Promise<DriveData | null> {
+  if (!db) return null;
+  try {
+    const snap = await getDoc(doc(db, 'portfolio', 'main'));
+    if (snap.exists()) {
+      return snap.data() as DriveData;
+    }
+  } catch (err: any) {
+    if (err.message?.includes('offline')) {
+      console.warn('Firestore is offline or unreachable. Will fallback to alternative data source if available.');
+      throw err; // throw so App.tsx can catch it
+    }
+    console.error('Error in fetchPortfolioFromFirestore:', err);
+    throw err;
+  }
+  return null;
 }
 
 /**
