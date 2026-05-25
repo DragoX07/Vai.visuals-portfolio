@@ -98,11 +98,17 @@ export default function App() {
   }, []);
 
   const syncAdminFromDrive = async (token: string) => {
+    console.log('[Sync] Starting sync with token present:', !!token);
     setIsSyncing(true);
     setSyncError(null);
     try {
+      console.log('[Sync] Calling fetchDriveAssets...');
       const data = await fetchDriveAssets(token);
+      console.log('[Sync] fetchDriveAssets returned:', data ? `Data with ${data.photos?.length || 0} photos and ${data.videos?.length || 0} videos` : 'Null/Undefined data');
+      
+      console.log('[Sync] Calling savePortfolioToFirestore...');
       await savePortfolioToFirestore(data);
+      console.log('[Sync] savePortfolioToFirestore completed successfully');
       
       setDrivePhotos(data.photos);
       setDriveVideos(data.videos);
@@ -110,9 +116,10 @@ export default function App() {
       setDriveShowcaseThumbnailUrl(data.showcaseThumbnailUrl);
       setDriveSourceInfo(data.sourceInfo);
       localStorage.setItem('gdrive_oauth_token', token);
+      console.log('[Sync] Sync process complete and state updated.');
     } catch (err: any) {
-      console.error('Failed to sync Google Drive:', err);
-      setSyncError('Failed to fetch pictures. Make sure your Drive has the requested files and you accepted permissions.');
+      console.error('[Sync] Failed to sync Google Drive:', err);
+      setSyncError(`Failed to fetch pictures. ${err.message || ''}`);
     } finally {
       setIsSyncing(false);
     }
@@ -131,7 +138,12 @@ export default function App() {
       }
     } catch (err: any) {
       console.error(err);
-      setSyncError(err.message || 'Authentication failed. Please verify setup.');
+      if (err.code === 'auth/unauthorized-domain' || err.message?.includes('unauthorized-domain')) {
+        const domain = window.location.hostname;
+        setSyncError(`Firebase Error: Please add ${domain} to the "Authorized domains" list in the Firebase Console (Authentication > Settings > Authorized domains).`);
+      } else {
+        setSyncError(err.message || 'Authentication failed. Please verify setup.');
+      }
     }
   };
 
@@ -321,6 +333,13 @@ export default function App() {
                     <span>Log Out</span>
                   </button>
                 </div>
+
+                {syncError && (
+                  <div className="flex items-start gap-2 bg-red-50 text-red-700 p-3 rounded-2xl border border-red-100 font-sans text-[10px]">
+                    <ShieldAlert className="w-4 h-4 shrink-0 text-red-600 mt-0.5" />
+                    <p className="leading-relaxed">{syncError}</p>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="space-y-4">

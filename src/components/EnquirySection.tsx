@@ -29,16 +29,46 @@ export default function EnquirySection() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleFormSubmit = (e: FormEvent) => {
+  const handleFormSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.email) return;
 
     setLoading(true);
-    // Mimic real mailing submission latency for luxurious boutique feel
-    setTimeout(() => {
+    
+    try {
+      // Use Web3Forms access key from environment variable. 
+      // User must register teamssp.productions@gmail.com at web3forms.com to get this key.
+      const accessKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || 'YOUR_WEB3FORMS_ACCESS_KEY_HERE';
+
+      const response = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          access_key: accessKey,
+          name: formData.name,
+          email: formData.email,
+          subject: `New Proposal from ${formData.name} - ${formData.projectType}`,
+          project_type: formData.projectType,
+          message: formData.message || 'No additional details provided.',
+        }),
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        setSubmitted(true);
+      } else {
+        console.error('Web3Forms submission failed:', result);
+        alert('Something went wrong. Please try again or email us directly.');
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      alert('Network error. Please try again later.');
+    } finally {
       setLoading(false);
-      setSubmitted(true);
-    }, 1200);
+    }
   };
 
   const handleResetForm = () => {
@@ -245,7 +275,7 @@ export default function EnquirySection() {
 
                   <div>
                     <p className="text-cream/70 font-serif italic text-xs max-w-xs mx-auto mb-6">
-                      A visual curator will reach out to schedule an introductory video call within 24 business hours.
+                      We will Reach out to you via email in less than 48 business hours. Thank You
                     </p>
                     <button
                       onClick={handleResetForm}

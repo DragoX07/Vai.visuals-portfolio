@@ -42,12 +42,13 @@ export interface DriveData {
 
 export async function savePortfolioToFirestore(data: DriveData): Promise<void> {
   if (!db) throw new Error('Firestore not initialized');
-  // Firestore does not support undefined values, convert them to null
+  // Clone and drop all nested undefined values cleanly so Firestore never crashes
+  const strippedData = JSON.parse(JSON.stringify(data));
   const cleanData = {
-    ...data,
-    showcaseVideoUrl: data.showcaseVideoUrl ?? null,
-    showcaseThumbnailUrl: data.showcaseThumbnailUrl ?? null,
-    sourceInfo: data.sourceInfo ?? null
+    ...strippedData,
+    showcaseVideoUrl: strippedData.showcaseVideoUrl ?? null,
+    showcaseThumbnailUrl: strippedData.showcaseThumbnailUrl ?? null,
+    sourceInfo: strippedData.sourceInfo ?? null
   };
   await setDoc(doc(db, 'portfolio', 'main'), cleanData);
 }
@@ -214,6 +215,7 @@ async function findSubfolderAlternative(token: string, parentId: string, namePat
  */
 export async function fetchDriveAssets(token: string): Promise<DriveData> {
   try {
+    console.log('[fetchDriveAssets] Starting with token', token ? 'present' : 'missing');
     let mainFolderId: string | null = null;
     let mainFolderName = 'Website';
     let photosFolderId: string | null = null;
@@ -224,12 +226,16 @@ export async function fetchDriveAssets(token: string): Promise<DriveData> {
     // First, try the user's specific folder ID provided in the resource link
     const directFolderId = '1EVlj_ZKv3oXBj5QxrpbNCCMD5gwwxY0b';
     try {
+      console.log('[fetchDriveAssets] Attempting to access direct folder ID:', directFolderId);
       const directFolderUrl = `https://www.googleapis.com/drive/v3/files/${directFolderId}?fields=id,name&supportsAllDrives=true`;
       const directFolderRes = await fetch(directFolderUrl, { headers: { Authorization: `Bearer ${token}` } });
       if (directFolderRes.ok) {
         const folderMeta = await directFolderRes.json();
         mainFolderId = folderMeta.id;
         mainFolderName = folderMeta.name || 'Website';
+        console.log('[fetchDriveAssets] Successfully accessed direct folder:', mainFolderId, mainFolderName);
+      } else {
+        console.log('[fetchDriveAssets] Direct folder fetch failed with status:', directFolderRes.status, await directFolderRes.text().catch(()=>''));
       }
     } catch (err) {
       console.warn('Could not directly access folder by user-provided ID, falling back to name search:', err);
@@ -244,12 +250,14 @@ export async function fetchDriveAssets(token: string): Promise<DriveData> {
       if (resGlobalFolders.ok) {
         const data = await resGlobalFolders.json();
         const files = data.files || [];
+        console.log(`[fetchDriveAssets] Found ${files.length} folders globally matching query.`);
         
         // Attempt 1: Exact match for 'Website'
         const websiteMatches = files.filter((f: any) => f.name.toLowerCase().trim() === 'website');
         if (websiteMatches.length > 0) {
           mainFolderId = websiteMatches[0].id;
           mainFolderName = websiteMatches[0].name;
+          console.log('[fetchDriveAssets] Matched exact "Website" folder:', mainFolderId);
         } else {
           // Attempt 2: Exact match for 'SSP portfolio' or similar
           const sspMatches = files.filter((f: any) => {
@@ -259,6 +267,7 @@ export async function fetchDriveAssets(token: string): Promise<DriveData> {
           if (sspMatches.length > 0) {
             mainFolderId = sspMatches[0].id;
             mainFolderName = sspMatches[0].name;
+            console.log('[fetchDriveAssets] Matched exact "SSP folder":', mainFolderId);
           } else {
             // Attempt 3: Fuzzy match containing 'website'
             const fuzzyWebsite = files.find((f: any) => f.name.toLowerCase().includes('website'));
@@ -446,6 +455,9 @@ export async function fetchDriveAssets(token: string): Promise<DriveData> {
       }
     }
 
+    console.log('[fetchDriveAssets] Photos folder resolved to:', photosFolderId);
+    console.log('[fetchDriveAssets] Videos folder resolved to:', videosFolderId);
+
     // Fallback: Query direct child files in photosFolderId itself if subfolders are empty or missing, or query globally from entire Drive
     if (!foundSubfolderPhotos) {
       const imgQuery = photosFolderId
@@ -453,19 +465,24 @@ export async function fetchDriveAssets(token: string): Promise<DriveData> {
         : "mimeType contains 'image/' and trashed = false";
       const imgUrl = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(imgQuery)}&fields=files(id,name,mimeType,webViewLink,webContentLink,thumbnailLink)&pageSize=25&supportsAllDrives=true&includeItemsFromAllDrives=true`;
       try {
+        console.log('[fetchDriveAssets] Fetching direct images with query:', imgQuery);
         const imgRes = await fetch(imgUrl, { headers: { Authorization: `Bearer ${token}` } });
         if (imgRes.ok) {
           const imgData = await imgRes.json();
           const files = imgData.files || [];
+          console.log(`[fetchDriveAssets] Found ${files.length} images directly`);
           imgFiles = files.map((f: any, index: number) => ({
             ...f,
             category: index % 3 === 0 ? 'portrait' : index % 3 === 1 ? 'commercial' : 'editorial'
           }));
+        } else {
+          console.log('[fetchDriveAssets] Direct images fetch failed:', imgRes.status, await imgRes.text().catch(()=>''));
         }
       } catch (err) {
-        console.error('Error fetching direct/global images:', err);
+        console.error('[fetchDriveAssets] Error fetching direct/global images:', err);
       }
     }
+
 
     // Query videos safely with supportsAllDrives (fallback to global video query if videosFolderId is null)
     const vidQuery = videosFolderId
@@ -526,7 +543,7 @@ export async function fetchDriveAssets(token: string): Promise<DriveData> {
         category: file.category || 'portrait',
         location: 'Connected Drive Portfolio',
         coverUrl: hqThumbnail,
-        originalUrl: file.webViewLink || file.webContentLink
+        originalUrl: file.webViewLink || file.webContentLink || null
       };
     });
 
@@ -541,15 +558,15 @@ export async function fetchDriveAssets(token: string): Promise<DriveData> {
         category: 'Cinema Showcase',
         tag: index % 2 === 0 ? 'Documentary' : 'Campaign',
         coverUrl: hqThumbnail,
-        videoUrl: file.webViewLink || file.webContentLink // Stream / link via Drive directly
+        videoUrl: file.webViewLink || file.webContentLink || null // Stream / link via Drive directly
       };
     });
 
     return {
       photos: drivePhotos,
       videos: driveVideos,
-      showcaseVideoUrl,
-      showcaseThumbnailUrl,
+      showcaseVideoUrl: showcaseVideoUrl ?? null,
+      showcaseThumbnailUrl: showcaseThumbnailUrl ?? null,
       sourceInfo: {
         mainFolderFound: !!mainFolderId,
         mainFolderName: mainFolderName,
