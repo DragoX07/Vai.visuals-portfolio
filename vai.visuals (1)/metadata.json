@@ -1,0 +1,6 @@
+{
+  "name": "vai.visuals",
+  "description": "An elegant, cinematic portfolio and production studio website for physical and digital creatives.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
