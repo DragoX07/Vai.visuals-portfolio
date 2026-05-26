@@ -79,7 +79,7 @@ export default function VideoSection({ onPlayVideo, videos }: VideoSectionProps)
               <div
                 key={project.id}
                 onClick={() => onPlayVideo(project.videoUrl)}
-                className={`group cursor-pointer bg-white hover:bg-white rounded-3xl p-6 border border-[#EBE3D3] hover:border-peach/35 transition-all duration-500 flex flex-col justify-between ${gridColSpan} shadow-[0_4px_24px_rgba(44,26,14,0.015)] hover:shadow-[0_16px_40px_rgba(44,26,14,0.08)] overflow-hidden`}
+                className={`group cursor-pointer bg-white hover:bg-white rounded-3xl p-6 border border-[#EBE3D3] hover:border-peach/35 transition-all duration-500 flex flex-col justify-between ${gridColSpan} shadow-[0_4px_24px_rgba(44,26,14,0.015)] hover:shadow-[0_16px_40px_rgba(44,26,14,0.08)] hover:-translate-y-1 hover:scale-[1.01] overflow-hidden`}
               >
                 <div>
                   {/* Subtle inner grid marker */}

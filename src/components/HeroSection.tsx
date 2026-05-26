@@ -98,7 +98,7 @@ export default function HeroSection({ onPlayShowreel, photos, showcaseVideoUrl, 
     return () => observer.disconnect();
   }, []);
 
-  const sampleShowreelUrl = "https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c054238863aafe2406b2db3c19e79433&profile_id=165&oauth2_token_id=57447761";
+  const sampleShowreelUrl = "";
   const activeShowcaseUrl = showcaseVideoUrl || sampleShowreelUrl;
 
   // Map synced Google Drive photos into the scattered background collage if they exist
@@ -133,6 +133,7 @@ export default function HeroSection({ onPlayShowreel, photos, showcaseVideoUrl, 
 
       {/* FLOATING COLLAGE FRAMEWORKS */}
       {displayPhotos.map((photo) => {
+        if (!photo.url) return null;
         // Calculate physics translation
         // Desk values move opposite of mouse movement (* speedFactor * viewportWidth/Height)
         const desktopX = -coords.x * photo.speedFactor * 450;
@@ -196,21 +197,23 @@ export default function HeroSection({ onPlayShowreel, photos, showcaseVideoUrl, 
 
         {/* Central Anchored Showreel Box */}
         <div 
-          onClick={() => onPlayShowreel(activeShowcaseUrl)}
+          onClick={() => activeShowcaseUrl ? onPlayShowreel(activeShowcaseUrl) : undefined}
           className="w-full aspect-video rounded-lg overflow-hidden bg-[#2C1A0E] shadow-[0_32px_64px_rgba(44,26,14,0.25)] border-[5px] border-[#FAF5EE] group cursor-pointer relative transition-transform duration-500 hover:scale-[1.01]"
         >
           {/* Real atmospheric background muted loop video */}
-          <video
-            ref={showcaseVideoRef}
-            muted
-            loop
-            playsInline
-            poster={showcaseThumbnailUrl}
-            className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity duration-700"
-            src={activeShowcaseUrl}
-            /* Comment indicating where to swap real showreel media */
-            // SWAP MEDIA: Replace the 'src' link with your high-end cinematic showreel file or Vimeo/YouTube direct stream.
-          />
+          {activeShowcaseUrl && (
+            <video
+              ref={showcaseVideoRef}
+              muted
+              loop
+              playsInline
+              poster={showcaseThumbnailUrl}
+              className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity duration-700"
+              src={activeShowcaseUrl}
+              /* Comment indicating where to swap real showreel media */
+              // SWAP MEDIA: Replace the 'src' link with your high-end cinematic showreel file or Vimeo/YouTube direct stream.
+            />
+          )}
 
           {/* Central Play Trigger Ring */}
           <div className="absolute inset-0 flex items-center justify-center">

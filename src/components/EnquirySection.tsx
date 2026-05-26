@@ -137,7 +137,7 @@ export default function EnquirySection() {
                     social media
                   </h4>
                   <a
-                    href="https://instagram.com"
+                    href="https://www.instagram.com/vai.visualss/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="font-serif text-base text-[#2C1A0E] hover:text-terracotta transition-colors decoration-dotted underline underline-offset-4"

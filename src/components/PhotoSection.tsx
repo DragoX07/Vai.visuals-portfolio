@@ -67,7 +67,7 @@ export default function PhotoSection({ onZoomPhoto, photos }: PhotoSectionProps)
               <div
                 key={photo.id}
                 onClick={() => onZoomPhoto(photo.coverUrl, photo.title, photo.location, photo.originalUrl)}
-                className="break-inside-avoid mb-6 group cursor-pointer bg-white rounded-3xl p-5 border border-[#EBE3D3] hover:border-peach/35 transition-all duration-700 flex flex-col justify-start shadow-[0_4px_24px_rgba(44,26,14,0.015)] hover:shadow-[0_16px_40px_rgba(44,26,14,0.08)] select-none animate-fadeIn"
+                className="break-inside-avoid mb-6 group cursor-pointer bg-white rounded-3xl p-5 border border-[#EBE3D3] hover:border-peach/35 transition-all duration-700 flex flex-col justify-start shadow-[0_4px_24px_rgba(44,26,14,0.015)] hover:shadow-[0_16px_40px_rgba(44,26,14,0.08)] hover:-translate-y-1 hover:scale-[1.01] select-none animate-fadeIn"
                 style={{
                   animationDelay: `${index * 80}ms`
                 }}
