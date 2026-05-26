@@ -237,6 +237,10 @@ export default function App() {
       {/* 3. Section 2: Selected Films dynamic cards */}
       <VideoSection onPlayVideo={handlePlayVideo} videos={driveVideos} />
 
+      <div className="w-full max-w-7xl mx-auto px-4 md:px-8 lg:px-12 py-8 flex justify-center opacity-70">
+        <div className="w-full h-px bg-gradient-to-r from-transparent via-[#E0D8C8] to-transparent max-w-3xl"></div>
+      </div>
+
       {/* 4. Section 3: Fine-Art photography Lookbook */}
       <PhotoSection onZoomPhoto={handleZoomPhoto} photos={drivePhotos} />
 
