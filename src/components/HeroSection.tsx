@@ -8,9 +8,10 @@ interface HeroSectionProps {
   photos?: StillPhoto[];
   showcaseVideoUrl?: string;
   showcaseThumbnailUrl?: string;
+  onOpenAdminPanel?: () => void;
 }
 
-export default function HeroSection({ onPlayShowreel, photos, showcaseVideoUrl, showcaseThumbnailUrl }: HeroSectionProps) {
+export default function HeroSection({ onPlayShowreel, photos, showcaseVideoUrl, showcaseThumbnailUrl, onOpenAdminPanel }: HeroSectionProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const showcaseVideoRef = useRef<HTMLVideoElement>(null);
   
@@ -175,7 +176,10 @@ export default function HeroSection({ onPlayShowreel, photos, showcaseVideoUrl, 
       {/* HERO DIORAMA (Central anchored showcase) */}
       <div className="relative z-20 w-full max-w-xl md:max-w-3xl flex flex-col items-center text-center px-4">
         {/* Editorial Badge */}
-        <div className="mb-4 inline-flex items-center gap-2 bg-[#FAF5EE]/90 backdrop-blur-sm border border-[#F2E9D8] px-4 py-1.5 rounded-full shadow-sm">
+        <div 
+          onClick={onOpenAdminPanel}
+          className="mb-4 inline-flex items-center gap-2 bg-[#FAF5EE]/90 backdrop-blur-sm border border-[#F2E9D8] px-4 py-1.5 rounded-full shadow-sm cursor-pointer hover:bg-white transition-colors"
+        >
           <span className="w-1.5 h-1.5 bg-terracotta rounded-full"></span>
           <span className="text-[#2C1A0E] text-[10px] tracking-[0.25em] font-sans font-semibold uppercase">
             Production Studio

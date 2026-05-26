@@ -232,7 +232,7 @@ export default function App() {
       <Header activeSection={activeSection} scrollToSection={scrollToSection} />
 
       {/* 2. Section 1: Hero collage scene */}
-      <HeroSection onPlayShowreel={handlePlayVideo} photos={drivePhotos} showcaseVideoUrl={driveShowcaseVideoUrl} showcaseThumbnailUrl={driveShowcaseThumbnailUrl} />
+      <HeroSection onPlayShowreel={handlePlayVideo} photos={drivePhotos} showcaseVideoUrl={driveShowcaseVideoUrl} showcaseThumbnailUrl={driveShowcaseThumbnailUrl} onOpenAdminPanel={() => setIsAdminPanelOpen(true)} />
 
       {/* 3. Section 2: Selected Films dynamic cards */}
       <VideoSection onPlayVideo={handlePlayVideo} videos={driveVideos} />
@@ -260,18 +260,7 @@ export default function App() {
 
       {/* 8. Owner Live Studio Integration Widget */}
       <div className="fixed bottom-6 right-6 z-40">
-        {!isAdminPanelOpen ? (
-          <button
-            onClick={() => setIsAdminPanelOpen(true)}
-            className="flex items-center gap-2.5 bg-[#C1440E] hover:bg-[#C1440E]/90 text-[#FAF5EE] rounded-full px-5 py-3.5 shadow-xl border border-white/5 transition-all select-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-terracotta group"
-            aria-label="Open Studio Controller"
-          >
-            <Camera className="w-5 h-5 text-[#FAF5EE] animate-pulse" />
-            <span className="text-xs uppercase font-sans font-bold tracking-[0.2em] max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-500 whitespace-nowrap">
-              Admin Sync Panel
-            </span>
-          </button>
-        ) : (
+        {isAdminPanelOpen && (
           <div className="bg-white rounded-3xl p-6 shadow-2xl border border-cream-dark w-80 max-w-[calc(100vw-2rem)] flex flex-col gap-4">
             <div className="flex justify-between items-center pb-3 border-b border-cream-dark">
               <div>
