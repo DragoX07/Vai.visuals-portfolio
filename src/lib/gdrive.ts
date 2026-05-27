@@ -510,8 +510,8 @@ export async function fetchDriveAssets(token: string): Promise<DriveData> {
           const data = await res.json();
           if (data.files && data.files.length > 0) {
             showcaseVideoUrl = data.files[0].webViewLink || data.files[0].webContentLink;
-            // Get larger thumbnail by removing width limit
-            showcaseThumbnailUrl = data.files[0].thumbnailLink ? data.files[0].thumbnailLink.replace(/=s\d+/, '=s1920') : undefined;
+            // Get larger thumbnail by bypassing the expiring thumbnail link and using the permanent thumbnail endpoint
+            showcaseThumbnailUrl = data.files[0].id ? `https://drive.google.com/thumbnail?id=${data.files[0].id}&sz=w1920` : undefined;
           }
         }
       } catch (err) {
@@ -533,31 +533,25 @@ export async function fetchDriveAssets(token: string): Promise<DriveData> {
     });
 
     const drivePhotos: StillPhoto[] = imgFiles.map((file: any) => {
-      const hqThumbnail = file.thumbnailLink 
-        ? file.thumbnailLink.replace(/=s\d+/, '=s1600')
-        : 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=800&q=80';
-
       return {
         id: file.id,
         title: file.name.replace(/\.[^/.]+$/, ""), // Strip file extension
         category: file.category || 'portrait',
         location: 'Connected Drive Portfolio',
-        coverUrl: hqThumbnail,
+        coverUrl: `https://drive.google.com/uc?export=view&id=${file.id}`,
         originalUrl: file.webViewLink || file.webContentLink || null
       };
     });
 
     const driveVideos: FilmProject[] = vidFiles.map((file: any, index: number) => {
-      const hqThumbnail = file.thumbnailLink 
-        ? file.thumbnailLink.replace(/=s\d+/, '=s1200')
-        : 'https://images.unsplash.com/photo-1452626038306-9aae5e071dd3?auto=format&fit=crop&w=800&q=80';
-
       return {
         id: file.id,
         title: file.name.replace(/\.[^/.]+$/, ""),
         category: 'Cinema Showcase',
         tag: index % 2 === 0 ? 'Documentary' : 'Campaign',
-        coverUrl: hqThumbnail,
+        // Drive video thumbnails usually don't have a reliable permanent proxy without auth,
+        // so we use the thumbnail endpoint. Images use the UC export trick.
+        coverUrl: file.thumbnailLink ? `https://drive.google.com/thumbnail?id=${file.id}&sz=w1200` : `https://drive.google.com/uc?export=view&id=${file.id}`,
         videoUrl: file.webViewLink || file.webContentLink || null // Stream / link via Drive directly
       };
     });
