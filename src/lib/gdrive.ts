@@ -538,7 +538,7 @@ export async function fetchDriveAssets(token: string): Promise<DriveData> {
         title: file.name.replace(/\.[^/.]+$/, ""), // Strip file extension
         category: file.category || 'portrait',
         location: 'Connected Drive Portfolio',
-        coverUrl: `https://drive.google.com/uc?export=view&id=${file.id}`,
+        coverUrl: `https://lh3.googleusercontent.com/d/${file.id}`,
         originalUrl: file.webViewLink || file.webContentLink || null
       };
     });
