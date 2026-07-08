@@ -21,6 +21,9 @@ if (isConfigured) {
 }
 
 const provider = new GoogleAuthProvider();
+provider.setCustomParameters({
+  prompt: 'consent'
+});
 // Required Google Drive scope to browse and read metadata of files
 provider.addScope('https://www.googleapis.com/auth/drive.readonly');
 provider.addScope('https://www.googleapis.com/auth/userinfo.profile');
@@ -216,6 +219,14 @@ async function findSubfolderAlternative(token: string, parentId: string, namePat
 export async function fetchDriveAssets(token: string): Promise<DriveData> {
   try {
     console.log('[fetchDriveAssets] Starting with token', token ? 'present' : 'missing');
+    
+    // Validate token first
+    const testUrl = `https://www.googleapis.com/drive/v3/about?fields=user`;
+    const testRes = await fetch(testUrl, { headers: { Authorization: `Bearer ${token}` } });
+    if (!testRes.ok) {
+       throw new Error(`Google API returned ${testRes.status}. Missing or insufficient permissions. Token may have expired.`);
+    }
+
     let mainFolderId: string | null = null;
     let mainFolderName = 'Website';
     let photosFolderId: string | null = null;
@@ -235,9 +246,13 @@ export async function fetchDriveAssets(token: string): Promise<DriveData> {
         mainFolderName = folderMeta.name || 'Website';
         console.log('[fetchDriveAssets] Successfully accessed direct folder:', mainFolderId, mainFolderName);
       } else {
+        if (directFolderRes.status === 401 || directFolderRes.status === 403) {
+          throw new Error(`Google API returned ${directFolderRes.status}. Missing or insufficient permissions. Token may have expired.`);
+        }
         console.log('[fetchDriveAssets] Direct folder fetch failed with status:', directFolderRes.status, await directFolderRes.text().catch(()=>''));
       }
     } catch (err) {
+      if (err instanceof Error && err.message.includes('permissions')) throw err;
       console.warn('Could not directly access folder by user-provided ID, falling back to name search:', err);
     }
 
@@ -509,9 +524,9 @@ export async function fetchDriveAssets(token: string): Promise<DriveData> {
         if (res.ok) {
           const data = await res.json();
           if (data.files && data.files.length > 0) {
-            showcaseVideoUrl = data.files[0].webViewLink || data.files[0].webContentLink;
+            showcaseVideoUrl = `https://lh3.googleusercontent.com/d/${data.files[0].id}`;
             // Get larger thumbnail by bypassing the expiring thumbnail link and using the permanent thumbnail endpoint
-            showcaseThumbnailUrl = data.files[0].id ? `https://drive.google.com/thumbnail?id=${data.files[0].id}&sz=w1920` : undefined;
+            showcaseThumbnailUrl = `https://lh3.googleusercontent.com/d/${data.files[0].id}`;
           }
         }
       } catch (err) {
@@ -550,9 +565,9 @@ export async function fetchDriveAssets(token: string): Promise<DriveData> {
         category: 'Cinema Showcase',
         tag: index % 2 === 0 ? 'Documentary' : 'Campaign',
         // Drive video thumbnails usually don't have a reliable permanent proxy without auth,
-        // so we use the thumbnail endpoint. Images use the UC export trick.
-        coverUrl: file.thumbnailLink ? `https://drive.google.com/thumbnail?id=${file.id}&sz=w1200` : `https://drive.google.com/uc?export=view&id=${file.id}`,
-        videoUrl: file.webViewLink || file.webContentLink || null // Stream / link via Drive directly
+        // so we use the lh3 format as requested.
+        coverUrl: `https://lh3.googleusercontent.com/d/${file.id}`,
+        videoUrl: `https://lh3.googleusercontent.com/d/${file.id}`
       };
     });
 

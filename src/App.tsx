@@ -53,28 +53,9 @@ export default function App() {
           setDriveShowcaseVideoUrl(data.showcaseVideoUrl);
           setDriveShowcaseThumbnailUrl(data.showcaseThumbnailUrl);
           setDriveSourceInfo(data.sourceInfo);
-        } else {
-          fallbackFetch();
         }
       } catch (err: any) {
         console.error('Error fetching public portfolio:', err);
-        fallbackFetch();
-      }
-    };
-
-    const fallbackFetch = async () => {
-      const token = localStorage.getItem('gdrive_oauth_token');
-      if (token) {
-        try {
-          const data = await fetchDriveAssets(token);
-          setDrivePhotos(data.photos);
-          setDriveVideos(data.videos);
-          setDriveShowcaseVideoUrl(data.showcaseVideoUrl);
-          setDriveShowcaseThumbnailUrl(data.showcaseThumbnailUrl);
-          setDriveSourceInfo(data.sourceInfo);
-        } catch (e) {
-          console.error('Fallback fetch failed:', e);
-        }
       }
     };
 
@@ -119,7 +100,12 @@ export default function App() {
       console.log('[Sync] Sync process complete and state updated.');
     } catch (err: any) {
       console.error('[Sync] Failed to sync Google Drive:', err);
-      setSyncError(`Failed to fetch pictures. ${err.message || ''}`);
+      const errorMessage = err.message || '';
+      if (errorMessage.toLowerCase().includes('permissions') || errorMessage.toLowerCase().includes('failed to fetch')) {
+        setSyncError(`Failed to fetch pictures. Missing or insufficient permissions. Please sign out and sign back in to refresh permissions.`);
+      } else {
+        setSyncError(`Failed to fetch pictures. ${errorMessage}. Please sign out and sign back in to refresh permissions.`);
+      }
     } finally {
       setIsSyncing(false);
     }
