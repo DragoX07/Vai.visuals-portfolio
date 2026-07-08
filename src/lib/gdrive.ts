@@ -90,6 +90,23 @@ export async function signInWithGoogle(): Promise<{ user: User; token: string } 
     if (!token) {
       throw new Error('No access token returned from Google authentication.');
     }
+
+    console.log('[Auth] Sign in successful.');
+    console.log('[Auth] Scopes granted in credential:', credential?.accessToken ? 'Token present' : 'No token');
+    console.log('[Auth] Granted scopes raw:', credential);
+
+    // Test token directly against Drive API as requested
+    console.log('[Auth] Testing raw token against Drive API (https://www.googleapis.com/drive/v3/files?pageSize=1)...');
+    try {
+      const testRes = await fetch('https://www.googleapis.com/drive/v3/files?pageSize=1', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      console.log('[Auth] Drive API test response status:', testRes.status);
+      const testData = await testRes.json();
+      console.log('[Auth] Drive API test response data:', testData);
+    } catch (err) {
+      console.error('[Auth] Drive API test failed with error:', err);
+    }
     
     return {
       user: result.user,
