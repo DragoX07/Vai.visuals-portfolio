@@ -541,7 +541,8 @@ export async function fetchDriveAssets(token: string): Promise<DriveData> {
         if (res.ok) {
           const data = await res.json();
           if (data.files && data.files.length > 0) {
-            showcaseVideoUrl = `https://lh3.googleusercontent.com/d/${data.files[0].id}`;
+            // FIXED: Using export=download for the video stream
+            showcaseVideoUrl = `https://drive.google.com/uc?export=download&id=${data.files[0].id}`;
             // Get larger thumbnail by bypassing the expiring thumbnail link and using the permanent thumbnail endpoint
             showcaseThumbnailUrl = `https://lh3.googleusercontent.com/d/${data.files[0].id}`;
           }
@@ -584,7 +585,8 @@ export async function fetchDriveAssets(token: string): Promise<DriveData> {
         // Drive video thumbnails usually don't have a reliable permanent proxy without auth,
         // so we use the lh3 format as requested.
         coverUrl: `https://lh3.googleusercontent.com/d/${file.id}`,
-        videoUrl: `https://lh3.googleusercontent.com/d/${file.id}`
+        // FIXED: Using export=download for the video stream
+        videoUrl: `https://drive.google.com/uc?export=download&id=${file.id}`
       };
     });
 
