@@ -202,17 +202,24 @@ export default function HeroSection({ onPlayShowreel, photos, showcaseVideoUrl, 
         >
           {/* Real atmospheric background muted loop video */}
           {activeShowcaseUrl && (
-            <video
-              ref={showcaseVideoRef}
-              muted
-              loop
-              playsInline
-              poster={showcaseThumbnailUrl}
-              className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity duration-700"
-              src={activeShowcaseUrl}
-              /* Comment indicating where to swap real showreel media */
-              // SWAP MEDIA: Replace the 'src' link with your high-end cinematic showreel file or Vimeo/YouTube direct stream.
-            />
+            activeShowcaseUrl.includes('drive.google.com') ? (
+              <iframe
+                src={`${activeShowcaseUrl}&autoplay=1&mute=1&controls=0`}
+                title="Showcase Video"
+                className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity duration-700 pointer-events-none border-0"
+                allow="autoplay; fullscreen"
+              />
+            ) : (
+              <video
+                ref={showcaseVideoRef}
+                muted
+                loop
+                playsInline
+                poster={showcaseThumbnailUrl}
+                className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity duration-700"
+                src={activeShowcaseUrl}
+              />
+            )
           )}
 
           {/* Central Play Trigger Ring */}

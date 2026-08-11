@@ -92,15 +92,23 @@ export default function VideoSection({ onPlayVideo, videos }: VideoSectionProps)
                   {/* High Quality Thumbnail Card & AutoPlay Video */}
                   <div className="relative aspect-video w-full overflow-hidden rounded-2xl bg-black shadow-lg">
                     {/* Video that plays when visible */}
-                    <video
-                      ref={(el) => (videoRefs.current[idx] = el)}
-                      src={project.videoUrl}
-                      poster={project.coverUrl}
-                      muted
-                      loop
-                      playsInline
-                      className="w-full h-full object-cover block group-hover:scale-105 transition-transform duration-[800ms] ease-out opacity-80 group-hover:opacity-100 group-hover:brightness-105"
-                    />
+                    {project.videoUrl.includes('drive.google.com') ? (
+                      <img 
+                        src={project.coverUrl} 
+                        alt={project.title}
+                        className="w-full h-full object-cover block group-hover:scale-105 transition-transform duration-[800ms] ease-out opacity-80 group-hover:opacity-100 group-hover:brightness-105"
+                      />
+                    ) : (
+                      <video
+                        ref={(el) => (videoRefs.current[idx] = el)}
+                        src={project.videoUrl}
+                        poster={project.coverUrl}
+                        muted
+                        loop
+                        playsInline
+                        className="w-full h-full object-cover block group-hover:scale-105 transition-transform duration-[800ms] ease-out opacity-80 group-hover:opacity-100 group-hover:brightness-105"
+                      />
+                    )}
                     
                     {/* Dark gradient shadow inside thumbnail */}
                     <div className="absolute inset-0 bg-gradient-to-t from-charcoal/65 via-transparent to-transparent opacity-60"></div>
