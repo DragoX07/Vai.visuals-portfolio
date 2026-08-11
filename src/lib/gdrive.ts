@@ -517,7 +517,6 @@ export async function fetchDriveAssets(token: string): Promise<DriveData> {
       ? `'${videosFolderId}' in parents and mimeType contains 'video/' and trashed = false`
       : "mimeType contains 'video/' and trashed = false";
     const vidUrl = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(vidQuery)}&fields=files(id,name,mimeType,webViewLink,webContentLink,thumbnailLink)&pageSize=10&supportsAllDrives=true&includeItemsFromAllDrives=true`;
-    try {
       const vidRes = await fetch(vidUrl, { headers: { Authorization: `Bearer ${token}` } });
       if (vidRes.ok) {
         const vidData = await vidRes.json();
@@ -572,16 +571,15 @@ export async function fetchDriveAssets(token: string): Promise<DriveData> {
     });
 
     const driveVideos: FilmProject[] = vidFiles.map((file: any, index: number) => {
-      return {
-        id: file.id,
-        title: file.name.replace(/\.[^/.]+$/, ""),
-        category: 'Cinema Showcase',
-        tag: index % 2 === 0 ? 'Documentary' : 'Campaign',
-        coverUrl: `https://lh3.googleusercontent.com/d/${file.id}`,
-        // UPDATED: Points to Google Drive preview iframe player
-        videoUrl: `https://drive.google.com/file/d/${file.id}/preview`
-      };
-    });
+    return {
+      id: file.id,
+      title: file.name.replace(/\.[^/.]+$/, ""),
+      category: 'Cinema Showcase',
+      tag: index % 2 === 0 ? 'Documentary' : 'Campaign',
+      coverUrl: `https://lh3.googleusercontent.com/d/${file.id}`,
+      videoUrl: file.webContentLink || `https://drive.google.com/uc?id=${file.id}&export=download`
+    };
+  });
 
     return {
       photos: drivePhotos,
