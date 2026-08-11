@@ -101,6 +101,11 @@ export default function HeroSection({ onPlayShowreel, photos, showcaseVideoUrl, 
   const sampleShowreelUrl = "";
   const activeShowcaseUrl = showcaseVideoUrl || sampleShowreelUrl;
 
+  // Format Drive preview URL safely with parameters
+  const embedShowcaseUrl = activeShowcaseUrl && activeShowcaseUrl.includes('drive.google.com')
+    ? `${activeShowcaseUrl}${activeShowcaseUrl.includes('?') ? '&' : '?'}autoplay=1&mute=1&controls=0`
+    : activeShowcaseUrl;
+
   // Map synced Google Drive photos into the scattered background collage if they exist
   const displayPhotos = floatingHeroPhotos.map((photo, index) => {
     if (photos && photos.length > index) {
@@ -118,10 +123,10 @@ export default function HeroSection({ onPlayShowreel, photos, showcaseVideoUrl, 
     <section
       id="home"
       ref={containerRef}
-      className="relative min-h-screen flex items-center justify-center bg-cream overflow-hidden pt-20 px-6"
+      className="relative min-h-screen flex items-center justify-center bg-cream overflow-hidden pt-20 px-4 sm:px-6"
     >
-      {/* Editorial Grid Backing (Subtle aesthetic guides) */}
-      <div className="absolute inset-x-0 top-0 h-full w-full pointer-events-none opacity-[0.03] select-none flex justify-between px-12 md:px-24">
+      {/* Editorial Grid Backing */}
+      <div className="absolute inset-x-0 top-0 h-full w-full pointer-events-none opacity-[0.03] select-none flex justify-between px-6 sm:px-12 md:px-24">
         <div className="w-[1px] h-full bg-[#2C1A0E]"></div>
         <div className="w-[1px] h-full bg-[#2C1A0E] hidden md:block"></div>
         <div className="w-[1px] h-full bg-[#2C1A0E] hidden md:block"></div>
@@ -134,12 +139,8 @@ export default function HeroSection({ onPlayShowreel, photos, showcaseVideoUrl, 
       {/* FLOATING COLLAGE FRAMEWORKS */}
       {displayPhotos.map((photo) => {
         if (!photo.url) return null;
-        // Calculate physics translation
-        // Desk values move opposite of mouse movement (* speedFactor * viewportWidth/Height)
         const desktopX = -coords.x * photo.speedFactor * 450;
         const desktopY = -coords.y * photo.speedFactor * 450;
-        
-        // Mobile scroll displacement moves upwards at different rates
         const mobileY = -coords.scrollY * photo.speedFactor * 0.8;
 
         const style = {
@@ -162,10 +163,8 @@ export default function HeroSection({ onPlayShowreel, photos, showcaseVideoUrl, 
                 className="w-full aspect-[4/5] object-cover rounded-md group-hover:scale-105 transition-transform duration-700 ease-out selection:bg-none"
                 referrerPolicy="no-referrer"
               />
-              {/* Soft warm gold matte overlay on hover */}
               <div className="absolute inset-0 bg-charcoal/0 group-hover:bg-charcoal/10 transition-colors duration-500 rounded-md"></div>
               
-              {/* Dynamic decorative film-strip layout coordinates */}
               <div className="absolute bottom-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity duration-500 text-cream font-mono text-[9px] tracking-widest bg-charcoal/45 px-2 py-0.5 rounded-full select-none">
                 vai_std // {photo.category.toUpperCase()}
               </div>
@@ -175,7 +174,7 @@ export default function HeroSection({ onPlayShowreel, photos, showcaseVideoUrl, 
       })}
 
       {/* HERO DIORAMA (Central anchored showcase) */}
-      <div className="relative z-20 w-full max-w-xl md:max-w-3xl flex flex-col items-center text-center px-4">
+      <div className="relative z-20 w-full max-w-xl md:max-w-3xl flex flex-col items-center text-center px-2 sm:px-4">
         {/* Editorial Badge */}
         <div 
           onClick={onOpenAdminPanel}
@@ -188,26 +187,26 @@ export default function HeroSection({ onPlayShowreel, photos, showcaseVideoUrl, 
         </div>
 
         {/* Cinematic Title Group */}
-        <h1 className="text-[#2C1A0E] font-serif font-light text-6xl sm:text-8xl md:text-9xl tracking-tight leading-none mb-2 select-none">
+        <h1 className="text-[#2C1A0E] font-serif font-light text-5xl sm:text-8xl md:text-9xl tracking-tight leading-none mb-2 select-none">
           Portfolio
         </h1>
-        <p className="text-peach text-xs sm:text-sm md:text-base font-serif italic tracking-wider mb-8 max-w-lg">
+        <p className="text-peach text-xs sm:text-sm md:text-base font-serif italic tracking-wider mb-6 sm:mb-8 max-w-lg">
           Capturing transient light and silent gestures into cinematic eternity
         </p>
 
         {/* Central Anchored Showreel Box */}
         <div 
           onClick={() => activeShowcaseUrl ? onPlayShowreel(activeShowcaseUrl) : undefined}
-          className="w-full aspect-video rounded-lg overflow-hidden bg-[#2C1A0E] shadow-[0_32px_64px_rgba(44,26,14,0.25)] border-[5px] border-[#FAF5EE] group cursor-pointer relative transition-transform duration-500 hover:scale-[1.01]"
+          className="w-full aspect-video rounded-lg overflow-hidden bg-[#2C1A0E] shadow-[0_32px_64px_rgba(44,26,14,0.25)] border-[3px] sm:border-[5px] border-[#FAF5EE] group cursor-pointer relative transition-transform duration-500 hover:scale-[1.01]"
         >
           {/* Real atmospheric background muted loop video */}
-          {activeShowcaseUrl && (
-            activeShowcaseUrl.includes('drive.google.com') ? (
+          {embedShowcaseUrl && (
+            embedShowcaseUrl.includes('drive.google.com') ? (
               <iframe
-                src={`${activeShowcaseUrl}&autoplay=1&mute=1&controls=0`}
+                src={embedShowcaseUrl}
                 title="Showcase Video"
-                className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity duration-700 pointer-events-none border-0"
-                allow="autoplay; fullscreen"
+                className="absolute inset-0 w-full h-full opacity-60 group-hover:opacity-40 transition-opacity duration-700 pointer-events-none border-0 scale-105"
+                allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
               />
             ) : (
               <video
@@ -217,33 +216,33 @@ export default function HeroSection({ onPlayShowreel, photos, showcaseVideoUrl, 
                 playsInline
                 poster={showcaseThumbnailUrl}
                 className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity duration-700"
-                src={activeShowcaseUrl}
+                src={embedShowcaseUrl}
               />
             )
           )}
 
           {/* Central Play Trigger Ring */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-16 h-16 md:w-20 md:h-20 rounded-full border border-cream/30 bg-[#2C1A0E]/30 backdrop-blur-sm flex items-center justify-center transition-all duration-500 scale-100 group-hover:scale-110 group-hover:bg-terracotta/90 group-hover:border-terracotta">
-              <Play className="w-6 h-6 md:w-8 md:h-8 text-cream fill-cream transform translate-x-0.5" />
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-full border border-cream/30 bg-[#2C1A0E]/30 backdrop-blur-sm flex items-center justify-center transition-all duration-500 scale-100 group-hover:scale-110 group-hover:bg-terracotta/90 group-hover:border-terracotta">
+              <Play className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 text-cream fill-cream transform translate-x-0.5" />
             </div>
           </div>
 
           {/* Subtle Frame Labels */}
-          <div className="absolute top-4 left-4 font-mono text-[9px] tracking-wider text-cream/70 select-none">
+          <div className="absolute top-3 left-3 sm:top-4 sm:left-4 font-mono text-[8px] sm:text-[9px] tracking-wider text-cream/70 select-none pointer-events-none">
             [REC] // SHOWREEL_2026.MP4
           </div>
-          <div className="absolute bottom-4 right-4 font-mono text-[9px] tracking-wider text-cream/70 select-none">
+          <div className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 font-mono text-[8px] sm:text-[9px] tracking-wider text-cream/70 select-none pointer-events-none">
             PLAY PREVIEW
           </div>
         </div>
 
         {/* Scroll Indicator Footer */}
-        <div className="mt-12 flex flex-col items-center gap-2 text-[#2C1A0E]/60 pointer-events-none">
+        <div className="mt-8 sm:mt-12 flex flex-col items-center gap-2 text-[#2C1A0E]/60 pointer-events-none">
           <span className="text-[10px] tracking-[0.3em] font-sans font-light uppercase">
             Explore Portfolio
           </span>
-          <div className="w-[1px] h-10 bg-gradient-to-b from-[#2C1A0E]/60 to-transparent animate-pulse"></div>
+          <div className="w-[1px] h-8 sm:h-10 bg-gradient-to-b from-[#2C1A0E]/60 to-transparent animate-pulse"></div>
         </div>
       </div>
     </section>
