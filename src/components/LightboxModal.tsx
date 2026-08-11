@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { X, Volume2, Maximize } from 'lucide-react';
+import { X } from 'lucide-react';
 
 interface LightboxModalProps {
   videoUrl: string | null;
@@ -62,32 +62,13 @@ export default function LightboxModal({
         {videoUrl && (
           <div className="aspect-video relative bg-black flex items-center justify-center">
             {videoUrl.includes('drive.google.com') ? (
-              <div className="flex flex-col items-center justify-center p-8 sm:p-16 text-center text-cream w-full">
-                <div className="w-16 h-16 rounded-full bg-[#C1440E]/20 border border-[#C1440E]/40 flex items-center justify-center mb-6">
-                  <svg className="w-8 h-8 text-[#C1440E] animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <h3 className="font-serif text-2xl tracking-wide text-white mb-2">Original Cinematic Quality Reel</h3>
-                <p className="font-sans text-[10px] tracking-[0.2em] text-cream/55 max-w-sm mb-6 uppercase">
-                  SSP PORTFOLIO // GOOGLE DRIVE ORIGINAL MASTER
-                </p>
-                <p className="text-xs sm:text-sm text-cream/75 max-w-sm mb-8 leading-relaxed">
-                  To guarantee perfect, uncompressed audio and master-grade cinematic playback, this project is linked directly to your Google Drive.
-                </p>
-                <a
-                  href={videoUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-[#C1440E] hover:bg-[#C1440E]/90 text-[#FAF5EE] text-xs uppercase font-sans font-semibold tracking-widest px-8 py-4 rounded-xl flex items-center gap-2.5 transition-all shadow-lg hover:shadow-xl cursor-default"
-                >
-                  <span>Stream Master Reel</span>
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                  </svg>
-                </a>
-              </div>
+              <iframe
+                src={videoUrl}
+                title="Cinematic Video Player"
+                className="w-full h-full border-0"
+                allow="autoplay; encrypted-media; fullscreen"
+                allowFullScreen
+              />
             ) : (
               <>
                 <video

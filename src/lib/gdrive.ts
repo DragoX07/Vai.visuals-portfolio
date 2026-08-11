@@ -231,7 +231,7 @@ async function findSubfolderAlternative(token: string, parentId: string, namePat
 }
 
 /**
- * Fetch 25 images and videos from Google Drive
+ * Fetch images and videos from Google Drive
  */
 export async function fetchDriveAssets(token: string): Promise<DriveData> {
   try {
@@ -251,7 +251,6 @@ export async function fetchDriveAssets(token: string): Promise<DriveData> {
     let showcaseFolderId: string | null = null;
 
     // 1. Determine the "Website" folder ID from Drive (or fallback to 'SSP portfolio')
-    // First, try the user's specific folder ID provided in the resource link
     const directFolderId = '1EVlj_ZKv3oXBj5QxrpbNCCMD5gwwxY0b';
     try {
       console.log('[fetchDriveAssets] Attempting to access direct folder ID:', directFolderId);
@@ -476,7 +475,6 @@ export async function fetchDriveAssets(token: string): Promise<DriveData> {
           })
         );
 
-        // Flatten all gathered images from folder categories
         const flattened = results.reduce((acc, val) => acc.concat(val), []);
         if (flattened.length > 0) {
           imgFiles = flattened;
@@ -490,7 +488,6 @@ export async function fetchDriveAssets(token: string): Promise<DriveData> {
     console.log('[fetchDriveAssets] Photos folder resolved to:', photosFolderId);
     console.log('[fetchDriveAssets] Videos folder resolved to:', videosFolderId);
 
-    // Fallback: Query direct child files in photosFolderId itself if subfolders are empty or missing, or query globally from entire Drive
     if (!foundSubfolderPhotos) {
       const imgQuery = photosFolderId
         ? `'${photosFolderId}' in parents and mimeType contains 'image/' and trashed = false`
@@ -515,8 +512,7 @@ export async function fetchDriveAssets(token: string): Promise<DriveData> {
       }
     }
 
-
-    // Query videos safely with supportsAllDrives (fallback to global video query if videosFolderId is null)
+    // Query videos safely with supportsAllDrives
     const vidQuery = videosFolderId
       ? `'${videosFolderId}' in parents and mimeType contains 'video/' and trashed = false`
       : "mimeType contains 'video/' and trashed = false";
@@ -541,9 +537,8 @@ export async function fetchDriveAssets(token: string): Promise<DriveData> {
         if (res.ok) {
           const data = await res.json();
           if (data.files && data.files.length > 0) {
-            // FIXED: Using export=download for the video stream
-            showcaseVideoUrl = `https://drive.google.com/uc?export=download&id=${data.files[0].id}`;
-            // Get larger thumbnail by bypassing the expiring thumbnail link and using the permanent thumbnail endpoint
+            // UPDATED: Points to Google Drive preview iframe player
+            showcaseVideoUrl = `https://drive.google.com/file/d/${data.files[0].id}/preview`;
             showcaseThumbnailUrl = `https://lh3.googleusercontent.com/d/${data.files[0].id}`;
           }
         }
@@ -552,7 +547,7 @@ export async function fetchDriveAssets(token: string): Promise<DriveData> {
       }
     }
 
-    // Sort files naturally by name (so 1 starts before 2, etc. up to 8)
+    // Sort files naturally by name
     imgFiles.sort((a: any, b: any) => {
       const nameA = a.name || '';
       const nameB = b.name || '';
@@ -582,11 +577,9 @@ export async function fetchDriveAssets(token: string): Promise<DriveData> {
         title: file.name.replace(/\.[^/.]+$/, ""),
         category: 'Cinema Showcase',
         tag: index % 2 === 0 ? 'Documentary' : 'Campaign',
-        // Drive video thumbnails usually don't have a reliable permanent proxy without auth,
-        // so we use the lh3 format as requested.
         coverUrl: `https://lh3.googleusercontent.com/d/${file.id}`,
-        // FIXED: Using export=download for the video stream
-        videoUrl: `https://drive.google.com/uc?export=download&id=${file.id}`
+        // UPDATED: Points to Google Drive preview iframe player
+        videoUrl: `https://drive.google.com/file/d/${file.id}/preview`
       };
     });
 
