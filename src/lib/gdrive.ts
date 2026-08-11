@@ -513,10 +513,13 @@ export async function fetchDriveAssets(token: string): Promise<DriveData> {
     }
 
     // Query videos safely with supportsAllDrives
+    // Query videos safely with supportsAllDrives
     const vidQuery = videosFolderId
       ? `'${videosFolderId}' in parents and mimeType contains 'video/' and trashed = false`
       : "mimeType contains 'video/' and trashed = false";
     const vidUrl = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(vidQuery)}&fields=files(id,name,mimeType,webViewLink,webContentLink,thumbnailLink)&pageSize=10&supportsAllDrives=true&includeItemsFromAllDrives=true`;
+    
+    try { // <--- YOU ARE MISSING THIS LINE
       const vidRes = await fetch(vidUrl, { headers: { Authorization: `Bearer ${token}` } });
       if (vidRes.ok) {
         const vidData = await vidRes.json();
