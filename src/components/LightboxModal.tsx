@@ -57,24 +57,21 @@ export default function LightboxModal({
         <X className="w-5 h-5" />
       </button>
 
-      {/* Lightbox Media Container */}
+      {/* Lightbox Media Container - FIXED: Full flex layout */}
       <div
         onClick={(e) => e.stopPropagation()} // Stop bubbling
-        className="w-full max-w-5xl rounded-lg overflow-hidden bg-black/40 border border-[#FAF5EE]/5 shadow-2xl relative max-h-[90vh] flex flex-col justify-center"
+        className="w-full max-w-5xl rounded-lg overflow-hidden bg-black/40 border border-[#FAF5EE]/5 shadow-2xl relative flex flex-col items-center justify-center max-h-[90vh]"
       >
         
-        {/* CASE 1: Video Player Lightbox - FIXED STRUCTURE */}
+        {/* CASE 1: Video Player Lightbox - FIXED: Uses flex-1 to fill */}
         {embedVideoUrl && (
-          <div 
-            className="w-full relative bg-black flex items-center justify-center overflow-hidden"
-            style={{ maxHeight: 'calc(100vh - 120px)' }}
-          >
-            <div className="w-full aspect-video relative">
+          <div className="w-full flex-1 flex items-center justify-center bg-black overflow-hidden rounded-lg">
+            <div className="w-full h-full flex items-center justify-center">
               {embedVideoUrl.includes('drive.google.com') ? (
                 <iframe
                   src={embedVideoUrl}
                   title="Cinematic Video Player"
-                  className="absolute inset-0 w-full h-full border-0"
+                  className="w-full h-full border-0"
                   allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
                   allowFullScreen
                 />
@@ -85,7 +82,7 @@ export default function LightboxModal({
                     autoPlay
                     controls
                     playsInline
-                    className="absolute inset-0 w-full h-full object-contain"
+                    className="w-full h-full object-contain"
                   />
                   {/* Swapping metadata note */}
                   <div className="absolute top-4 left-4 pointer-events-none bg-black/60 backdrop-blur-sm px-3 py-1 rounded-full text-cream font-mono text-[9px] tracking-widest uppercase">
@@ -99,8 +96,8 @@ export default function LightboxModal({
 
         {/* CASE 2: Image Stills Zoom Frame */}
         {imageUrl && (
-          <div className="relative flex flex-col items-center">
-            <div className="max-h-[60vh] sm:max-h-[70vh] lg:max-h-[75vh] w-full overflow-hidden flex items-center justify-center bg-[#1C0E05]/10">
+          <div className="w-full flex-1 flex flex-col items-center justify-center overflow-hidden">
+            <div className="w-full flex-1 flex items-center justify-center bg-[#1C0E05]/10 overflow-hidden">
               <img
                 src={imageUrl}
                 alt={imageTitle || 'Portfolio image'}
@@ -111,7 +108,7 @@ export default function LightboxModal({
             
             {/* Descriptive title block inside lightbox */}
             {(imageTitle || imageLocation || originalUrl) && (
-              <div className="w-full bg-[#FAF5EE] text-[#2C1A0E] p-4 sm:p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
+              <div className="w-full bg-[#FAF5EE] text-[#2C1A0E] p-4 sm:p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 flex-shrink-0">
                 <div>
                   <h3 className="font-serif text-[#2C1A0E] text-lg sm:text-xl tracking-wide">
                     vai.visuals
@@ -119,7 +116,7 @@ export default function LightboxModal({
                 </div>
                 <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                   {imageLocation && (
-                    <div className="bg-[#FAF5EE] border border-[#2C1A0E]/15 px-3 py-1.5 sm:px-4 sm:py-2 rounded-md flex items-center gap-2">
+                    <div className="bg-white border border-[#2C1A0E]/15 px-3 py-1.5 sm:px-4 sm:py-2 rounded-md flex items-center gap-2">
                       <span className="w-1.5 h-1.5 bg-terracotta rounded-full"></span>
                       <span className="font-mono text-[10px] sm:text-xs text-[#2C1A0E]/75 uppercase tracking-widest font-semibold">
                         {imageLocation}
