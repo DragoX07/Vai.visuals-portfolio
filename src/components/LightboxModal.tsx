@@ -44,7 +44,7 @@ export default function LightboxModal({
   return (
     <div
       onClick={onClose}
-      className="fixed inset-0 z-50 bg-charcoal/95 backdrop-blur-md flex items-center justify-center p-2 sm:p-6 animate-fadeIn"
+      className="fixed inset-0 z-50 bg-charcoal/95 backdrop-blur-md flex items-center justify-center p-2 sm:p-6 animate-fadeIn overflow-hidden"
       role="dialog"
       aria-modal="true"
     >
@@ -63,9 +63,9 @@ export default function LightboxModal({
         className="w-full max-w-5xl rounded-lg overflow-hidden bg-black/40 border border-[#FAF5EE]/5 shadow-2xl relative max-h-[90vh] flex flex-col justify-center"
       >
         
-        {/* CASE 1: Video Player Lightbox */}
+        {/* CASE 1: Video Player Lightbox - FIXED: Remove max-h constraint from video */}
         {embedVideoUrl && (
-          <div className="w-full aspect-video max-h-[80vh] relative bg-black flex items-center justify-center overflow-hidden">
+          <div className="w-full aspect-video relative bg-black flex items-center justify-center overflow-hidden">
             {embedVideoUrl.includes('drive.google.com') ? (
               <iframe
                 src={embedVideoUrl}
