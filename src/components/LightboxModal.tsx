@@ -54,7 +54,7 @@ export default function LightboxModal({
   return (
     <div
       onClick={onClose}
-      className="fixed inset-0 z-50 bg-charcoal/95 backdrop-blur-md flex items-center justify-center p-2 sm:p-6 animate-fadeIn overflow-hidden"
+      className="fixed inset-0 z-50 bg-charcoal/95 backdrop-blur-md flex items-center justify-center p-2 sm:p-6 animate-fadeIn"
       role="dialog"
       aria-modal="true"
     >
@@ -71,6 +71,7 @@ export default function LightboxModal({
         className="w-full max-w-5xl rounded-lg overflow-hidden bg-black/40 border border-[#FAF5EE]/5 shadow-2xl relative max-h-[90vh] flex flex-col justify-center"
       >
         
+<<<<<<< HEAD
         {/* We now ONLY use the native HTML5 video player */}
         {streamUrl && (
           <div className="w-full h-[70vh] sm:h-auto sm:aspect-video relative bg-black flex items-center justify-center overflow-hidden">
@@ -84,6 +85,34 @@ export default function LightboxModal({
             <div className="absolute top-4 left-4 pointer-events-none bg-black/60 backdrop-blur-sm px-3 py-1 rounded-full text-cream font-mono text-[9px] tracking-widest uppercase">
               STUDIO ARCHIVE // CINEMATIC SOURCE // HI-RES STREAM
             </div>
+=======
+        {/* CASE 1: Video Player Lightbox */}
+        {embedVideoUrl && (
+          <div className="w-full aspect-video max-h-[80vh] relative bg-black flex items-center justify-center overflow-hidden">
+            {embedVideoUrl.includes('drive.google.com') ? (
+              <iframe
+                src={embedVideoUrl}
+                title="Cinematic Video Player"
+                className="w-full h-full border-0"
+                allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
+                allowFullScreen
+              />
+            ) : (
+              <>
+                <video
+                  src={embedVideoUrl}
+                  autoPlay
+                  controls
+                  playsInline
+                  className="w-full h-full object-contain"
+                />
+                {/* Swapping metadata note */}
+                <div className="absolute top-4 left-4 pointer-events-none bg-black/60 backdrop-blur-sm px-3 py-1 rounded-full text-cream font-mono text-[9px] tracking-widest uppercase">
+                  STUDIO ARCHIVE // CINEMATIC SOURCE // HI-RES STREAM
+                </div>
+              </>
+            )}
+>>>>>>> parent of 1005334 (pls work)
           </div>
         )}
 
