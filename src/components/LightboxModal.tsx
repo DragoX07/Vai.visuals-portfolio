@@ -19,13 +19,11 @@ export default function LightboxModal({
   onClose,
 }: LightboxModalProps) {
   
-  // Back key escaping
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
     window.addEventListener('keydown', handleKeyDown);
-    // Lock scrolling behind overlay
     document.body.style.overflow = 'hidden';
     
     return () => {
@@ -36,10 +34,22 @@ export default function LightboxModal({
 
   if (!videoUrl && !imageUrl) return null;
 
-  // Safely format Google Drive URLs to ensure autoplay query string works cleanly
-  const embedVideoUrl = videoUrl && videoUrl.includes('drive.google.com') && !videoUrl.includes('autoplay')
-    ? `${videoUrl}${videoUrl.includes('?') ? '&' : '?'}autoplay=1`
-    : videoUrl;
+  // NEW LOGIC: Converts Drive links into direct streaming URLs
+  const getDirectStreamUrl = (url: string | null) => {
+    if (!url) return null;
+    
+    if (url.includes('drive.google.com')) {
+      // Extract the 33-character File ID from the standard Drive URL
+      const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+      if (match && match[1]) {
+        // Return Google's direct file export endpoint
+        return `https://drive.google.com/uc?export=download&id=${match[1]}`;
+      }
+    }
+    return url;
+  };
+
+  const streamUrl = getDirectStreamUrl(videoUrl);
 
   return (
     <div
@@ -48,7 +58,6 @@ export default function LightboxModal({
       role="dialog"
       aria-modal="true"
     >
-      {/* Dynamic Close Button */}
       <button
         onClick={onClose}
         className="absolute top-4 right-4 sm:top-6 sm:right-6 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-cream-dark/10 hover:bg-[#FAF5EE] hover:text-[#2C1A0E] text-[#FAF5EE] flex items-center justify-center transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-terracotta z-[100] cursor-pointer"
@@ -57,38 +66,24 @@ export default function LightboxModal({
         <X className="w-5 h-5" />
       </button>
 
-      {/* Lightbox Media Container */}
       <div
-        onClick={(e) => e.stopPropagation()} // Stop bubbling
+        onClick={(e) => e.stopPropagation()}
         className="w-full max-w-5xl rounded-lg overflow-hidden bg-black/40 border border-[#FAF5EE]/5 shadow-2xl relative max-h-[90vh] flex flex-col justify-center"
       >
         
-        {/* CASE 1: Video Player Lightbox - UPDATED: Use object-contain to prevent mobile cropping */}
-        {embedVideoUrl && (
-          <div className="w-full h-[30vh] sm:h-auto sm:aspect-video relative bg-black flex items-center justify-center overflow-hidden">
-            {embedVideoUrl.includes('drive.google.com') ? (
-              <iframe
-                src={embedVideoUrl}
-                title="Cinematic Video Player"
-                className="w-full h-full border-0"
-                allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
-                allowFullScreen
-              />
-            ) : (
-              <>
-                <video
-                  src={embedVideoUrl}
-                  autoPlay
-                  controls
-                  playsInline
-                  className="w-full h-full object-contain"
-                />
-                {/* Swapping metadata note */}
-                <div className="absolute top-4 left-4 pointer-events-none bg-black/60 backdrop-blur-sm px-3 py-1 rounded-full text-cream font-mono text-[9px] tracking-widest uppercase">
-                  STUDIO ARCHIVE // CINEMATIC SOURCE // HI-RES STREAM
-                </div>
-              </>
-            )}
+        {/* We now ONLY use the native HTML5 video player */}
+        {streamUrl && (
+          <div className="w-full h-[70vh] sm:h-auto sm:aspect-video relative bg-black flex items-center justify-center overflow-hidden">
+            <video
+              src={streamUrl}
+              autoPlay
+              controls
+              playsInline
+              className="w-full h-full object-contain"
+            />
+            <div className="absolute top-4 left-4 pointer-events-none bg-black/60 backdrop-blur-sm px-3 py-1 rounded-full text-cream font-mono text-[9px] tracking-widest uppercase">
+              STUDIO ARCHIVE // CINEMATIC SOURCE // HI-RES STREAM
+            </div>
           </div>
         )}
 
@@ -104,7 +99,6 @@ export default function LightboxModal({
               />
             </div>
             
-            {/* Descriptive title block inside lightbox */}
             {(imageTitle || imageLocation || originalUrl) && (
               <div className="w-full bg-[#FAF5EE] text-[#2C1A0E] p-4 sm:p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
                 <div>
