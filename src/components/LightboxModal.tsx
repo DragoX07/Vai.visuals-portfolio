@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { X, Maximize } from 'lucide-react';
+import { useEffect } from 'react';
+import { X } from 'lucide-react';
 
 interface LightboxModalProps {
   videoUrl: string | null;
@@ -18,8 +18,7 @@ export default function LightboxModal({
   originalUrl,
   onClose,
 }: LightboxModalProps) {
-  const [isFullscreen, setIsFullscreen] = useState(false);
-
+  
   // Back key escaping
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -37,20 +36,10 @@ export default function LightboxModal({
 
   if (!videoUrl && !imageUrl) return null;
 
-  // Check if it's a Google Drive URL
-  const isGoogleDrive = videoUrl?.includes('drive.google.com');
-
   // Safely format Google Drive URLs to ensure autoplay query string works cleanly
   const embedVideoUrl = videoUrl && videoUrl.includes('drive.google.com') && !videoUrl.includes('autoplay')
     ? `${videoUrl}${videoUrl.includes('?') ? '&' : '?'}autoplay=1`
     : videoUrl;
-
-  // Handle fullscreen for Drive videos
-  const handleOpenFullscreen = () => {
-    if (embedVideoUrl && isGoogleDrive) {
-      window.open(embedVideoUrl, '_blank');
-    }
-  };
 
   return (
     <div
@@ -68,14 +57,15 @@ export default function LightboxModal({
         <X className="w-5 h-5" />
       </button>
 
-      {/* Lightbox Media Container */}
+      {/* Lightbox Media Container - FIXED: Full flex layout */}
       <div
         onClick={(e) => e.stopPropagation()} // Stop bubbling
         className="w-full max-w-5xl rounded-lg overflow-hidden bg-black/40 border border-[#FAF5EE]/5 shadow-2xl relative flex flex-col items-center justify-center max-h-[90vh] my-auto"
       >
         
-        {/* CASE 1: Video Player Lightbox */}
+        {/* CASE 1: Video Player Lightbox - FIXED: Uses flex-1 to fill */}
         {embedVideoUrl && (
+<<<<<<< HEAD
           <div className="w-full flex-1 flex items-center justify-center bg-black overflow-hidden rounded-lg relative min-h-0">
             {/* Fullscreen button for Google Drive videos */}
             {isGoogleDrive && (
@@ -89,30 +79,32 @@ export default function LightboxModal({
               </button>
             )}
 
+=======
+          <div className="w-full flex-1 flex items-center justify-center bg-black overflow-hidden rounded-lg">
+>>>>>>> parent of b1c34b4 (fixed gdrive video playing)
             <div className="w-full h-full flex items-center justify-center">
-              {isGoogleDrive ? (
-                // For Google Drive: Show message with fullscreen button
-                <div className="flex flex-col items-center justify-center gap-4 p-4 text-center">
-                  <div className="text-cream text-sm sm:text-base font-serif italic">
-                    Tap the fullscreen button above for best viewing experience
-                  </div>
-                  <iframe
-                    src={embedVideoUrl}
-                    title="Cinematic Video Player"
-                    className="w-full max-h-[300px] border-0"
-                    allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
-                    allowFullScreen
-                  />
-                </div>
-              ) : (
-                // For native videos: Standard HTML5 player
-                <video
+              {embedVideoUrl.includes('drive.google.com') ? (
+                <iframe
                   src={embedVideoUrl}
-                  autoPlay
-                  controls
-                  playsInline
-                  className="w-full h-full object-contain"
+                  title="Cinematic Video Player"
+                  className="w-full h-full border-0"
+                  allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
+                  allowFullScreen
                 />
+              ) : (
+                <>
+                  <video
+                    src={embedVideoUrl}
+                    autoPlay
+                    controls
+                    playsInline
+                    className="w-full h-full object-contain"
+                  />
+                  {/* Swapping metadata note */}
+                  <div className="absolute top-4 left-4 pointer-events-none bg-black/60 backdrop-blur-sm px-3 py-1 rounded-full text-cream font-mono text-[9px] tracking-widest uppercase">
+                    STUDIO ARCHIVE // CINEMATIC SOURCE // HI-RES STREAM
+                  </div>
+                </>
               )}
             </div>
           </div>
