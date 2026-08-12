@@ -60,14 +60,14 @@ export default function PhotoSection({ onZoomPhoto, photos }: PhotoSectionProps)
           </div>
         </div>
 
-        {/* Asymmetric Bento Photo Grid */}
-        <div className="columns-1 sm:columns-2 lg:columns-3 gap-6 [column-fill:_balance] w-full">
+        {/* Asymmetric Bento Photo Grid - RESPONSIVE COLUMNS */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 auto-rows-max w-full">
           {filteredPhotos.map((photo: StillPhoto, index: number) => {
             return (
               <div
                 key={photo.id}
                 onClick={() => onZoomPhoto(photo.coverUrl, photo.title, photo.location, photo.originalUrl)}
-                className="break-inside-avoid mb-6 group cursor-pointer bg-white rounded-3xl p-5 border border-[#EBE3D3] hover:border-peach/35 transition-all duration-700 flex flex-col justify-start shadow-[0_4px_24px_rgba(44,26,14,0.015)] hover:shadow-[0_16px_40px_rgba(44,26,14,0.08)] hover:-translate-y-1 hover:scale-[1.01] select-none animate-fadeIn"
+                className="group cursor-pointer bg-white rounded-3xl p-5 border border-[#EBE3D3] hover:border-peach/35 transition-all duration-700 flex flex-col justify-start shadow-[0_4px_24px_rgba(44,26,14,0.015)] hover:shadow-[0_16px_40px_rgba(44,26,14,0.08)] hover:-translate-y-1 hover:scale-[1.01] select-none animate-fadeIn overflow-hidden"
                 style={{
                   animationDelay: `${index * 80}ms`
                 }}
@@ -76,17 +76,17 @@ export default function PhotoSection({ onZoomPhoto, photos }: PhotoSectionProps)
                   {/* Item Index Label */}
                   <div className="flex justify-between items-center mb-4 text-[#2C1A0E]/45 font-mono text-[9px] tracking-wider uppercase">
                     <span>VAI_STILLS // N°0{index + 1}</span>
-                    <span className="bg-[#FAF5EE] border border-[#F2E9D8] px-2 py-0.5 rounded-full text-[#C1440E] font-semibold">
+                    <span className="bg-[#FAF5EE] border border-[#F2E9D8] px-2 py-0.5 rounded-full text-[#C1440E] font-semibold text-[10px]">
                       {photo.category}
                     </span>
                   </div>
 
-                  {/* Image Wrap */}
-                  <div className="relative w-full overflow-hidden rounded-2xl bg-[#FAF5EE] border border-[#F2E9D8]">
+                  {/* Image Wrap - FIXED ASPECT RATIO */}
+                  <div className="relative w-full overflow-hidden rounded-2xl bg-[#FAF5EE] border border-[#F2E9D8] aspect-[4/5]">
                     <img
                       src={photo.coverUrl}
                       alt={photo.title}
-                      className="w-full h-auto object-cover block group-hover:scale-105 transition-transform duration-[900ms] ease-out hover:brightness-105"
+                      className="w-full h-full object-cover block group-hover:scale-105 transition-transform duration-[900ms] ease-out hover:brightness-105"
                       referrerPolicy="no-referrer"
                     />
 

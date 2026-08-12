@@ -194,7 +194,7 @@ export default function HeroSection({ onPlayShowreel, photos, showcaseVideoUrl, 
           Capturing transient light and silent gestures into cinematic eternity
         </p>
 
-        {/* Central Anchored Showreel Box */}
+        {/* Central Anchored Showreel Box - FIXED MOBILE ASPECT RATIO */}
         <div 
           onClick={() => activeShowcaseUrl ? onPlayShowreel(activeShowcaseUrl) : undefined}
           className="w-full aspect-video rounded-lg overflow-hidden bg-[#2C1A0E] shadow-[0_32px_64px_rgba(44,26,14,0.25)] border-[3px] sm:border-[5px] border-[#FAF5EE] group cursor-pointer relative transition-transform duration-500 hover:scale-[1.01]"
@@ -205,7 +205,7 @@ export default function HeroSection({ onPlayShowreel, photos, showcaseVideoUrl, 
               <iframe
                 src={embedShowcaseUrl}
                 title="Showcase Video"
-                className="absolute inset-0 w-full h-full opacity-60 group-hover:opacity-40 transition-opacity duration-700 pointer-events-none border-0 scale-105"
+                className="absolute inset-0 w-full h-full opacity-60 group-hover:opacity-40 transition-opacity duration-700 pointer-events-none border-0"
                 allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
               />
             ) : (

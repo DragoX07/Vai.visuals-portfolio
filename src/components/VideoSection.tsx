@@ -65,7 +65,7 @@ export default function VideoSection({ onPlayVideo, videos }: VideoSectionProps)
           </div>
         </div>
 
-        {/* Bento Grid Pattern */}
+        {/* Bento Grid Pattern - FULLY RESPONSIVE */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6 items-start">
           
           {activeVideos.map((project: FilmProject, idx: number) => {
@@ -86,13 +86,14 @@ export default function VideoSection({ onPlayVideo, videos }: VideoSectionProps)
                     </span>
                   </div>
 
-                  {/* High Quality Thumbnail Card */}
-                  <div className="relative aspect-video w-full overflow-hidden rounded-xl sm:rounded-2xl bg-black shadow-lg">
+                  {/* High Quality Thumbnail Card - FIXED ASPECT RATIO */}
+                  <div className="relative w-full overflow-hidden rounded-xl sm:rounded-2xl bg-black shadow-lg aspect-video">
                     {project.videoUrl.includes('drive.google.com') ? (
                       <img 
                         src={project.coverUrl} 
                         alt={project.title}
                         className="w-full h-full object-cover block group-hover:scale-105 transition-transform duration-[800ms] ease-out opacity-80 group-hover:opacity-100 group-hover:brightness-105"
+                        referrerPolicy="no-referrer"
                       />
                     ) : (
                       <video
