@@ -55,7 +55,7 @@ export default function LightboxModal({
   return (
     <div
       onClick={onClose}
-      className="fixed inset-0 z-50 bg-charcoal/95 backdrop-blur-md flex items-center justify-center p-2 sm:p-6 animate-fadeIn"
+      className="fixed inset-0 z-50 bg-charcoal/95 backdrop-blur-md flex items-center justify-center p-2 sm:p-6 animate-fadeIn overflow-y-auto"
       role="dialog"
       aria-modal="true"
     >
@@ -71,12 +71,12 @@ export default function LightboxModal({
       {/* Lightbox Media Container */}
       <div
         onClick={(e) => e.stopPropagation()} // Stop bubbling
-        className="w-full max-w-5xl rounded-lg overflow-hidden bg-black/40 border border-[#FAF5EE]/5 shadow-2xl relative flex flex-col items-center justify-center max-h-[90vh]"
+        className="w-full max-w-5xl rounded-lg overflow-hidden bg-black/40 border border-[#FAF5EE]/5 shadow-2xl relative flex flex-col items-center justify-center max-h-[90vh] my-auto"
       >
         
         {/* CASE 1: Video Player Lightbox */}
         {embedVideoUrl && (
-          <div className="w-full flex-1 flex items-center justify-center bg-black overflow-hidden rounded-lg relative">
+          <div className="w-full flex-1 flex items-center justify-center bg-black overflow-hidden rounded-lg relative min-h-0">
             {/* Fullscreen button for Google Drive videos */}
             {isGoogleDrive && (
               <button
@@ -120,8 +120,8 @@ export default function LightboxModal({
 
         {/* CASE 2: Image Stills Zoom Frame */}
         {imageUrl && (
-          <div className="w-full flex-1 flex flex-col items-center justify-center overflow-hidden">
-            <div className="w-full flex-1 flex items-center justify-center bg-[#1C0E05]/10 overflow-hidden">
+          <div className="w-full flex-1 flex flex-col items-center justify-center overflow-hidden min-h-0">
+            <div className="w-full flex-1 flex items-center justify-center bg-[#1C0E05]/10 overflow-hidden min-h-0">
               <img
                 src={imageUrl}
                 alt={imageTitle || 'Portfolio image'}
@@ -169,4 +169,4 @@ export default function LightboxModal({
       </div>
     </div>
   );
-}
+}v
