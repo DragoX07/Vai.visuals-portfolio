@@ -44,7 +44,7 @@ export default function LightboxModal({
   return (
     <div
       onClick={onClose}
-      className="fixed inset-0 z-50 bg-charcoal/95 backdrop-blur-md flex items-center justify-center p-2 sm:p-6 animate-fadeIn overflow-y-auto"
+      className="fixed inset-0 z-50 bg-charcoal/95 backdrop-blur-md flex items-center justify-center p-2 sm:p-6 animate-fadeIn"
       role="dialog"
       aria-modal="true"
     >
@@ -57,74 +57,56 @@ export default function LightboxModal({
         <X className="w-5 h-5" />
       </button>
 
-      {/* Lightbox Media Container - FIXED: Full flex layout */}
+      {/* Lightbox Media Container */}
       <div
         onClick={(e) => e.stopPropagation()} // Stop bubbling
-        className="w-full max-w-5xl rounded-lg overflow-hidden bg-black/40 border border-[#FAF5EE]/5 shadow-2xl relative flex flex-col items-center justify-center max-h-[90vh] my-auto"
+        className="w-full max-w-5xl rounded-lg overflow-hidden bg-black/40 border border-[#FAF5EE]/5 shadow-2xl relative max-h-[90vh] flex flex-col justify-center"
       >
         
-        {/* CASE 1: Video Player Lightbox - FIXED: Uses flex-1 to fill */}
+        {/* CASE 1: Video Player Lightbox */}
         {embedVideoUrl && (
-<<<<<<< HEAD
-          <div className="w-full flex-1 flex items-center justify-center bg-black overflow-hidden rounded-lg relative min-h-0">
-            {/* Fullscreen button for Google Drive videos */}
-            {isGoogleDrive && (
-              <button
-                onClick={handleOpenFullscreen}
-                className="absolute top-4 right-4 z-50 bg-terracotta hover:bg-terracotta/90 text-cream p-2.5 rounded-full transition-all cursor-pointer shadow-lg"
-                aria-label="Open in fullscreen"
-                title="Open in fullscreen for better mobile viewing"
-              >
-                <Maximize className="w-5 h-5" />
-              </button>
-            )}
-
-=======
-          <div className="w-full flex-1 flex items-center justify-center bg-black overflow-hidden rounded-lg">
->>>>>>> parent of b1c34b4 (fixed gdrive video playing)
-            <div className="w-full h-full flex items-center justify-center">
-              {embedVideoUrl.includes('drive.google.com') ? (
-                <iframe
+          <div className="w-full aspect-video max-h-[80vh] relative bg-black flex items-center justify-center overflow-hidden">
+            {embedVideoUrl.includes('drive.google.com') ? (
+              <iframe
+                src={embedVideoUrl}
+                title="Cinematic Video Player"
+                className="w-full h-full border-0"
+                allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
+                allowFullScreen
+              />
+            ) : (
+              <>
+                <video
                   src={embedVideoUrl}
-                  title="Cinematic Video Player"
-                  className="w-full h-full border-0"
-                  allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
-                  allowFullScreen
+                  autoPlay
+                  controls
+                  playsInline
+                  className="w-full h-full object-contain"
                 />
-              ) : (
-                <>
-                  <video
-                    src={embedVideoUrl}
-                    autoPlay
-                    controls
-                    playsInline
-                    className="w-full h-full object-contain"
-                  />
-                  {/* Swapping metadata note */}
-                  <div className="absolute top-4 left-4 pointer-events-none bg-black/60 backdrop-blur-sm px-3 py-1 rounded-full text-cream font-mono text-[9px] tracking-widest uppercase">
-                    STUDIO ARCHIVE // CINEMATIC SOURCE // HI-RES STREAM
-                  </div>
-                </>
-              )}
-            </div>
+                {/* Swapping metadata note */}
+                <div className="absolute top-4 left-4 pointer-events-none bg-black/60 backdrop-blur-sm px-3 py-1 rounded-full text-cream font-mono text-[9px] tracking-widest uppercase">
+                  STUDIO ARCHIVE // CINEMATIC SOURCE // HI-RES STREAM
+                </div>
+              </>
+            )}
           </div>
         )}
 
         {/* CASE 2: Image Stills Zoom Frame */}
         {imageUrl && (
-          <div className="w-full flex-1 flex flex-col items-center justify-center overflow-hidden min-h-0">
-            <div className="w-full flex-1 flex items-center justify-center bg-[#1C0E05]/10 overflow-hidden min-h-0">
+          <div className="relative flex flex-col items-center">
+            <div className="max-h-[70vh] sm:max-h-[75vh] w-full overflow-hidden flex items-center justify-center bg-[#1C0E05]/10">
               <img
                 src={imageUrl}
                 alt={imageTitle || 'Portfolio image'}
-                className="w-full h-full object-contain select-none"
+                className="w-full max-h-[65vh] sm:max-h-[70vh] object-contain select-none"
                 referrerPolicy="no-referrer"
               />
             </div>
             
             {/* Descriptive title block inside lightbox */}
             {(imageTitle || imageLocation || originalUrl) && (
-              <div className="w-full bg-[#FAF5EE] text-[#2C1A0E] p-4 sm:p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 flex-shrink-0">
+              <div className="w-full bg-[#FAF5EE] text-[#2C1A0E] p-4 sm:p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
                 <div>
                   <h3 className="font-serif text-[#2C1A0E] text-lg sm:text-xl tracking-wide">
                     vai.visuals
@@ -132,7 +114,7 @@ export default function LightboxModal({
                 </div>
                 <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                   {imageLocation && (
-                    <div className="bg-white border border-[#2C1A0E]/15 px-3 py-1.5 sm:px-4 sm:py-2 rounded-md flex items-center gap-2">
+                    <div className="bg-[#FAF5EE] border border-[#2C1A0E]/15 px-3 py-1.5 sm:px-4 sm:py-2 rounded-md flex items-center gap-2">
                       <span className="w-1.5 h-1.5 bg-terracotta rounded-full"></span>
                       <span className="font-mono text-[10px] sm:text-xs text-[#2C1A0E]/75 uppercase tracking-widest font-semibold">
                         {imageLocation}
@@ -161,4 +143,4 @@ export default function LightboxModal({
       </div>
     </div>
   );
-}v
+}
