@@ -63,7 +63,7 @@ export default function LightboxModal({
         className="w-full max-w-5xl rounded-lg overflow-hidden bg-black/40 border border-[#FAF5EE]/5 shadow-2xl relative max-h-[90vh] flex flex-col justify-center"
       >
         
-        {/* CASE 1: Video Player Lightbox - FIXED: Remove max-h constraint from video */}
+        {/* CASE 1: Video Player Lightbox - FIXED: Use object-cover to fill container */}
         {embedVideoUrl && (
           <div className="w-full aspect-video relative bg-black flex items-center justify-center overflow-hidden">
             {embedVideoUrl.includes('drive.google.com') ? (
@@ -81,7 +81,7 @@ export default function LightboxModal({
                   autoPlay
                   controls
                   playsInline
-                  className="w-full h-full object-contain"
+                  className="w-full h-full object-cover"
                 />
                 {/* Swapping metadata note */}
                 <div className="absolute top-4 left-4 pointer-events-none bg-black/60 backdrop-blur-sm px-3 py-1 rounded-full text-cream font-mono text-[9px] tracking-widest uppercase">
