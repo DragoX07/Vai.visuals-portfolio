@@ -94,7 +94,18 @@ export const floatingHeroPhotos: FloatingPhoto[] = [
 ];
 
 // Content for Section 2: Videos (Works/Films)
-export const filmProjects: FilmProject[] = [];
+export const filmProjects: FilmProject[] = [
+  // {
+  //   id: 'video-1',
+  //   title: 'Example Campaign',
+  //   client: 'Brand Name',
+  //   description: 'Commercial shoot.',
+  //   videoUrl: 'https://drive.google.com/file/d/YOUR_VIDEO_ID/preview', // IMPORTANT: Use /preview instead of /view
+  //   coverUrl: 'https://images.unsplash.com/photo-example', // Required for Google Drive thumbnail fallbacks
+  //   year: '2026',
+  //   category: 'Commercial'
+  // }
+];
 
 // Content for Section 3: Stills (Photos lookbook)
 export const stillsPhotos: StillPhoto[] = [];

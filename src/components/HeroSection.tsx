@@ -28,26 +28,21 @@ export default function HeroSection({ onPlayShowreel, photos, showcaseVideoUrl, 
   const [coords, setCoords] = useState({ x: 0, y: 0, scrollY: 0 });
 
   useEffect(() => {
-    // 1. Mouse moving listener (Desktop parallax)
     const handlePointerMove = (e: PointerEvent) => {
       if (!containerRef.current) return;
       const rect = containerRef.current.getBoundingClientRect();
-      // Normalize values from -0.5 to 0.5
       const x = (e.clientX - rect.left) / rect.width - 0.5;
       const y = (e.clientY - rect.top) / rect.height - 0.5;
       targetX.current = x;
       targetY.current = y;
     };
 
-    // 2. Scroll listener (Mobile parallax)
     const handleScroll = () => {
       scrollYRef.current = window.scrollY;
     };
 
-    // Run animation frame loops
     let animationFrameId: number;
     const updatePhysics = () => {
-      // Linear Interpolation (LERP) formula: current = current + (target - current) * easeRate
       currentX.current += (targetX.current - currentX.current) * 0.08;
       currentY.current += (targetY.current - currentY.current) * 0.08;
 
@@ -76,7 +71,6 @@ export default function HeroSection({ onPlayShowreel, photos, showcaseVideoUrl, 
     };
   }, []);
 
-  // Intersection observer for showcase video
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -101,12 +95,25 @@ export default function HeroSection({ onPlayShowreel, photos, showcaseVideoUrl, 
   const sampleShowreelUrl = "";
   const activeShowcaseUrl = showcaseVideoUrl || sampleShowreelUrl;
 
-  // Format Drive preview URL safely with parameters
-  const embedShowcaseUrl = activeShowcaseUrl && activeShowcaseUrl.includes('drive.google.com')
-    ? `${activeShowcaseUrl}${activeShowcaseUrl.includes('?') ? '&' : '?'}autoplay=1&mute=1&controls=0`
-    : activeShowcaseUrl;
+  // Auto-format Google Drive Links for the Hero Background
+  const formatDriveUrl = (url: string) => {
+    if (!url) return '';
+    if (url.includes('drive.google.com')) {
+      let formattedUrl = url.replace(/\/view(\?.*)?$/, '/preview');
+      if (!formattedUrl.includes('/preview')) {
+        formattedUrl = formattedUrl.split('?')[0] + '/preview';
+      }
+      return formattedUrl;
+    }
+    return url;
+  };
 
-  // Map synced Google Drive photos into the scattered background collage if they exist
+  const formattedShowcaseUrl = formatDriveUrl(activeShowcaseUrl);
+
+  const embedShowcaseUrl = formattedShowcaseUrl.includes('drive.google.com')
+    ? `${formattedShowcaseUrl}${formattedShowcaseUrl.includes('?') ? '&' : '?'}autoplay=1&mute=1&controls=0`
+    : formattedShowcaseUrl;
+
   const displayPhotos = floatingHeroPhotos.map((photo, index) => {
     if (photos && photos.length > index) {
       return {
@@ -125,7 +132,6 @@ export default function HeroSection({ onPlayShowreel, photos, showcaseVideoUrl, 
       ref={containerRef}
       className="relative min-h-screen flex items-center justify-center bg-cream overflow-hidden pt-20 px-4 sm:px-6"
     >
-      {/* Editorial Grid Backing */}
       <div className="absolute inset-x-0 top-0 h-full w-full pointer-events-none opacity-[0.03] select-none flex justify-between px-6 sm:px-12 md:px-24">
         <div className="w-[1px] h-full bg-[#2C1A0E]"></div>
         <div className="w-[1px] h-full bg-[#2C1A0E] hidden md:block"></div>
@@ -133,10 +139,8 @@ export default function HeroSection({ onPlayShowreel, photos, showcaseVideoUrl, 
         <div className="w-[1px] h-full bg-[#2C1A0E]"></div>
       </div>
 
-      {/* Earthy Vignette Overlays */}
       <div className="absolute inset-0 bg-radial-gradient from-transparent to-cream/10 pointer-events-none"></div>
 
-      {/* FLOATING COLLAGE FRAMEWORKS */}
       {displayPhotos.map((photo) => {
         if (!photo.url) return null;
         const desktopX = -coords.x * photo.speedFactor * 450;
@@ -173,9 +177,7 @@ export default function HeroSection({ onPlayShowreel, photos, showcaseVideoUrl, 
         );
       })}
 
-      {/* HERO DIORAMA (Central anchored showcase) */}
       <div className="relative z-20 w-full max-w-xl md:max-w-3xl flex flex-col items-center text-center px-2 sm:px-4">
-        {/* Editorial Badge */}
         <div 
           onClick={onOpenAdminPanel}
           className="mb-4 inline-flex items-center gap-2 bg-[#FAF5EE]/90 backdrop-blur-sm border border-[#F2E9D8] px-4 py-1.5 rounded-full shadow-sm cursor-pointer hover:bg-white transition-colors"
@@ -186,7 +188,6 @@ export default function HeroSection({ onPlayShowreel, photos, showcaseVideoUrl, 
           </span>
         </div>
 
-        {/* Cinematic Title Group */}
         <h1 className="text-[#2C1A0E] font-serif font-light text-5xl sm:text-8xl md:text-9xl tracking-tight leading-none mb-2 select-none">
           Portfolio
         </h1>
@@ -194,12 +195,10 @@ export default function HeroSection({ onPlayShowreel, photos, showcaseVideoUrl, 
           Capturing transient light and silent gestures into cinematic eternity
         </p>
 
-        {/* Central Anchored Showreel Box - FIXED MOBILE ASPECT RATIO */}
         <div 
           onClick={() => activeShowcaseUrl ? onPlayShowreel(activeShowcaseUrl) : undefined}
           className="w-full aspect-video rounded-lg overflow-hidden bg-[#2C1A0E] shadow-[0_32px_64px_rgba(44,26,14,0.25)] border-[3px] sm:border-[5px] border-[#FAF5EE] group cursor-pointer relative transition-transform duration-500 hover:scale-[1.01]"
         >
-          {/* Real atmospheric background muted loop video */}
           {embedShowcaseUrl && (
             embedShowcaseUrl.includes('drive.google.com') ? (
               <iframe
@@ -221,14 +220,12 @@ export default function HeroSection({ onPlayShowreel, photos, showcaseVideoUrl, 
             )
           )}
 
-          {/* Central Play Trigger Ring */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-full border border-cream/30 bg-[#2C1A0E]/30 backdrop-blur-sm flex items-center justify-center transition-all duration-500 scale-100 group-hover:scale-110 group-hover:bg-terracotta/90 group-hover:border-terracotta">
               <Play className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 text-cream fill-cream transform translate-x-0.5" />
             </div>
           </div>
 
-          {/* Subtle Frame Labels */}
           <div className="absolute top-3 left-3 sm:top-4 sm:left-4 font-mono text-[8px] sm:text-[9px] tracking-wider text-cream/70 select-none pointer-events-none">
             [REC] // SHOWREEL_2026.MP4
           </div>
@@ -237,7 +234,6 @@ export default function HeroSection({ onPlayShowreel, photos, showcaseVideoUrl, 
           </div>
         </div>
 
-        {/* Scroll Indicator Footer */}
         <div className="mt-8 sm:mt-12 flex flex-col items-center gap-2 text-[#2C1A0E]/60 pointer-events-none">
           <span className="text-[10px] tracking-[0.3em] font-sans font-light uppercase">
             Explore Portfolio
