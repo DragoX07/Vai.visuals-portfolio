@@ -215,7 +215,7 @@ export default function HeroSection({ onPlayShowreel, photos, showcaseVideoUrl, 
                 loop
                 playsInline
                 poster={showcaseThumbnailUrl}
-                className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity duration-700"
+                className="w-full h-full object-cover object-center opacity-60 group-hover:opacity-40 transition-opacity duration-700"
                 src={embedShowcaseUrl}
               />
             )

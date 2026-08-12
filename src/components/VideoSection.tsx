@@ -92,7 +92,7 @@ export default function VideoSection({ onPlayVideo, videos }: VideoSectionProps)
                       <img 
                         src={project.coverUrl} 
                         alt={project.title}
-                        className="absolute inset-0 w-full h-full object-cover block group-hover:scale-105 transition-transform duration-[800ms] ease-out opacity-80 group-hover:opacity-100 group-hover:brightness-105"
+                        className="absolute inset-0 w-full h-full object-cover object-center block group-hover:scale-105 transition-transform duration-[800ms] ease-out opacity-80 group-hover:opacity-100 group-hover:brightness-105"
                         referrerPolicy="no-referrer"
                       />
                     ) : (
@@ -103,7 +103,7 @@ export default function VideoSection({ onPlayVideo, videos }: VideoSectionProps)
                         muted
                         loop
                         playsInline
-                        className="absolute inset-0 w-full h-full object-cover block group-hover:scale-105 transition-transform duration-[800ms] ease-out opacity-80 group-hover:opacity-100 group-hover:brightness-105"
+                        className="absolute inset-0 w-full h-full object-cover object-center block group-hover:scale-105 transition-transform duration-[800ms] ease-out opacity-80 group-hover:opacity-100 group-hover:brightness-105"
                       />
                     )}
                     
