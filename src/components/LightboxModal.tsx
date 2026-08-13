@@ -42,8 +42,8 @@ export default function LightboxModal({
       // Extract the File ID from the Drive URL
       const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
       if (match && match[1]) {
-        // Return Google's direct export endpoint for video streaming
-        return `https://drive.google.com/uc?export=view&id=${match[1]}`;
+        // Return Google's preview endpoint for iframe embedding
+        return `https://drive.google.com/file/d/${match[1]}/preview`;
       }
     }
     return url;
@@ -73,32 +73,33 @@ export default function LightboxModal({
         
         {/* Video Player - Native HTML5 for full browser compatibility */}
         {streamUrl && (
-  <div className="w-full bg-black flex items-center justify-center overflow-hidden" style={{ aspectRatio: '16/9' }}>
-        {streamUrl.includes('drive.google.com') ? (
-          // Use iframe for Google Drive videos
-          <iframe
-            src={streamUrl.replace('export=view', 'export=preview')}
-            allow="autoplay; fullscreen"
-            className="w-full h-full"
-            style={{ maxHeight: '80vh' }}
-          />
-        ) : (
-          // Use native video for other sources
-          <video
-            src={streamUrl}
-            autoPlay
-            controls
-            playsInline
-            controlsList="nodownload"
-            className="w-full h-full object-contain"
-            style={{ maxHeight: '80vh' }}
-          />
+          <div className="w-full bg-black flex items-center justify-center overflow-hidden" style={{ aspectRatio: '16/9' }}>
+            {streamUrl.includes('drive.google.com') ? (
+              // Use iframe for Google Drive videos
+              <iframe
+                src={streamUrl}
+                allow="autoplay; fullscreen"
+                allowFullScreen
+                className="w-full h-full"
+                style={{ maxHeight: '80vh' }}
+              />
+            ) : (
+              // Use native video for other sources
+              <video
+                src={streamUrl}
+                autoPlay
+                controls
+                playsInline
+                controlsList="nodownload"
+                className="w-full h-full object-contain"
+                style={{ maxHeight: '80vh' }}
+              />
+            )}
+            <div className="absolute top-4 left-4 pointer-events-none bg-black/60 backdrop-blur-sm px-3 py-1 rounded-full text-cream font-mono text-[9px] tracking-widest uppercase">
+              STUDIO ARCHIVE // CINEMATIC SOURCE // HI-RES STREAM
+            </div>
+          </div>
         )}
-    <div className="absolute top-4 left-4 pointer-events-none bg-black/60 backdrop-blur-sm px-3 py-1 rounded-full text-cream font-mono text-[9px] tracking-widest uppercase">
-      STUDIO ARCHIVE // CINEMATIC SOURCE // HI-RES STREAM
-    </div>
-  </div>
-)}
 
         {/* Image Stills - Responsive with no cropping */}
         {imageUrl && (
