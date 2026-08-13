@@ -82,8 +82,10 @@ export default function VideoSection({ onPlayVideo, videos }: VideoSectionProps)
                     </span>
                   </div>
 
-                  <div className="relative w-full overflow-hidden rounded-xl sm:rounded-2xl bg-black shadow-lg aspect-video">
+                  {/* Responsive Video Container - 16:9 aspect ratio on all devices */}
+                  <div className="relative w-full rounded-xl sm:rounded-2xl bg-black shadow-lg overflow-hidden" style={{ aspectRatio: '16/9' }}>
                     {project.videoUrl.includes('drive.google.com') ? (
+                      // Thumbnail for Google Drive videos
                       <img 
                         src={project.coverUrl} 
                         alt={project.title}
@@ -91,6 +93,7 @@ export default function VideoSection({ onPlayVideo, videos }: VideoSectionProps)
                         referrerPolicy="no-referrer"
                       />
                     ) : (
+                      // Native video player for direct URLs
                       <video
                         ref={(el) => (videoRefs.current[idx] = el)}
                         src={project.videoUrl}
@@ -102,8 +105,10 @@ export default function VideoSection({ onPlayVideo, videos }: VideoSectionProps)
                       />
                     )}
                     
+                    {/* Gradient Overlay */}
                     <div className="absolute inset-0 bg-gradient-to-t from-charcoal/65 via-transparent to-transparent opacity-60 pointer-events-none"></div>
 
+                    {/* Play Button - Centered & Responsive */}
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                       <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-white/20 bg-white/10 backdrop-blur-md flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:bg-terracotta group-hover:border-terracotta">
                         <svg className="w-4 h-4 sm:w-5 sm:h-5 text-cream fill-cream transform translate-x-0.5" viewBox="0 0 24 24">
@@ -112,12 +117,14 @@ export default function VideoSection({ onPlayVideo, videos }: VideoSectionProps)
                       </div>
                     </div>
 
+                    {/* Metadata Label - Responsive positioning */}
                     <div className="absolute bottom-2.5 left-3 sm:bottom-3 sm:left-4 font-mono text-[8px] sm:text-[9px] text-[#FAF5EE]/75 uppercase tracking-widest select-none pointer-events-none">
                       STREAM // HI_RES_DIGITAL
                     </div>
                   </div>
                 </div>
 
+                {/* Footer Arrow - Responsive */}
                 <div className="flex justify-end items-center mt-4 sm:mt-6 pointer-events-none">
                   <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-cream flex items-center justify-center group-hover:bg-[#FAF5EE] transition-colors">
                     <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#2C1A0E]/40 group-hover:text-terracotta transition-colors" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">

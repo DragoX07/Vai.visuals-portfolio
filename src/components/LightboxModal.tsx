@@ -34,15 +34,15 @@ export default function LightboxModal({
 
   if (!videoUrl && !imageUrl) return null;
 
-  // NEW LOGIC: Converts Drive links into direct streaming URLs
+  // Convert Google Drive URLs to direct streaming format
   const getDirectStreamUrl = (url: string | null) => {
     if (!url) return null;
     
     if (url.includes('drive.google.com')) {
-      // Extract the 33-character File ID from the standard Drive URL
+      // Extract the File ID from the Drive URL
       const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
       if (match && match[1]) {
-        // Return Google's direct file export endpoint
+        // Return Google's direct export endpoint for video streaming
         return `https://drive.google.com/uc?export=download&id=${match[1]}`;
       }
     }
@@ -54,7 +54,7 @@ export default function LightboxModal({
   return (
     <div
       onClick={onClose}
-      className="fixed inset-0 z-50 bg-charcoal/95 backdrop-blur-md flex items-center justify-center p-2 sm:p-6 animate-fadeIn"
+      className="fixed inset-0 z-50 bg-charcoal/95 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 md:p-6 animate-fadeIn"
       role="dialog"
       aria-modal="true"
     >
@@ -71,59 +71,33 @@ export default function LightboxModal({
         className="w-full max-w-5xl rounded-lg overflow-hidden bg-black/40 border border-[#FAF5EE]/5 shadow-2xl relative max-h-[90vh] flex flex-col justify-center"
       >
         
-<<<<<<< HEAD
-        {/* We now ONLY use the native HTML5 video player */}
+        {/* Video Player - Native HTML5 for full browser compatibility */}
         {streamUrl && (
-          <div className="w-full h-[70vh] sm:h-auto sm:aspect-video relative bg-black flex items-center justify-center overflow-hidden">
+          <div className="w-full bg-black flex items-center justify-center overflow-hidden" style={{ aspectRatio: '16/9' }}>
             <video
               src={streamUrl}
               autoPlay
               controls
               playsInline
+              controlsList="nodownload"
               className="w-full h-full object-contain"
+              style={{ maxHeight: '80vh' }}
             />
             <div className="absolute top-4 left-4 pointer-events-none bg-black/60 backdrop-blur-sm px-3 py-1 rounded-full text-cream font-mono text-[9px] tracking-widest uppercase">
               STUDIO ARCHIVE // CINEMATIC SOURCE // HI-RES STREAM
             </div>
-=======
-        {/* CASE 1: Video Player Lightbox */}
-        {embedVideoUrl && (
-          <div className="w-full aspect-video max-h-[80vh] relative bg-black flex items-center justify-center overflow-hidden">
-            {embedVideoUrl.includes('drive.google.com') ? (
-              <iframe
-                src={embedVideoUrl}
-                title="Cinematic Video Player"
-                className="w-full h-full border-0"
-                allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
-                allowFullScreen
-              />
-            ) : (
-              <>
-                <video
-                  src={embedVideoUrl}
-                  autoPlay
-                  controls
-                  playsInline
-                  className="w-full h-full object-contain"
-                />
-                {/* Swapping metadata note */}
-                <div className="absolute top-4 left-4 pointer-events-none bg-black/60 backdrop-blur-sm px-3 py-1 rounded-full text-cream font-mono text-[9px] tracking-widest uppercase">
-                  STUDIO ARCHIVE // CINEMATIC SOURCE // HI-RES STREAM
-                </div>
-              </>
-            )}
->>>>>>> parent of 1005334 (pls work)
           </div>
         )}
 
-        {/* CASE 2: Image Stills Zoom Frame */}
+        {/* Image Stills - Responsive with no cropping */}
         {imageUrl && (
-          <div className="relative flex flex-col items-center">
-            <div className="max-h-[70vh] sm:max-h-[75vh] w-full overflow-hidden flex items-center justify-center bg-[#1C0E05]/10">
+          <div className="relative flex flex-col items-center w-full">
+            <div className="w-full bg-[#1C0E05]/10 flex items-center justify-center overflow-hidden" style={{ maxHeight: '80vh' }}>
               <img
                 src={imageUrl}
                 alt={imageTitle || 'Portfolio image'}
-                className="w-full max-h-[65vh] sm:max-h-[70vh] object-contain select-none"
+                className="w-full h-auto object-contain select-none"
+                style={{ maxHeight: '75vh' }}
                 referrerPolicy="no-referrer"
               />
             </div>

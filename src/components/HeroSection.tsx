@@ -95,24 +95,20 @@ export default function HeroSection({ onPlayShowreel, photos, showcaseVideoUrl, 
   const sampleShowreelUrl = "";
   const activeShowcaseUrl = showcaseVideoUrl || sampleShowreelUrl;
 
-  // Auto-format Google Drive Links for the Hero Background
-  const formatDriveUrl = (url: string) => {
+  // Convert Google Drive URLs to proper preview format
+  const formatDriveUrlForPreview = (url: string) => {
     if (!url) return '';
     if (url.includes('drive.google.com')) {
-      let formattedUrl = url.replace(/\/view(\?.*)?$/, '/preview');
-      if (!formattedUrl.includes('/preview')) {
-        formattedUrl = formattedUrl.split('?')[0] + '/preview';
+      // Extract file ID and return preview URL
+      const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+      if (match && match[1]) {
+        return `https://drive.google.com/file/d/${match[1]}/preview`;
       }
-      return formattedUrl;
     }
     return url;
   };
 
-  const formattedShowcaseUrl = formatDriveUrl(activeShowcaseUrl);
-
-  const embedShowcaseUrl = formattedShowcaseUrl.includes('drive.google.com')
-    ? `${formattedShowcaseUrl}${formattedShowcaseUrl.includes('?') ? '&' : '?'}autoplay=1&mute=1&controls=0`
-    : formattedShowcaseUrl;
+  const formattedShowcaseUrl = formatDriveUrlForPreview(activeShowcaseUrl);
 
   const displayPhotos = floatingHeroPhotos.map((photo, index) => {
     if (photos && photos.length > index) {
@@ -199,15 +195,17 @@ export default function HeroSection({ onPlayShowreel, photos, showcaseVideoUrl, 
           onClick={() => activeShowcaseUrl ? onPlayShowreel(activeShowcaseUrl) : undefined}
           className="w-full aspect-video rounded-lg overflow-hidden bg-[#2C1A0E] shadow-[0_32px_64px_rgba(44,26,14,0.25)] border-[3px] sm:border-[5px] border-[#FAF5EE] group cursor-pointer relative transition-transform duration-500 hover:scale-[1.01]"
         >
-          {embedShowcaseUrl && (
-            embedShowcaseUrl.includes('drive.google.com') ? (
+          {formattedShowcaseUrl && (
+            formattedShowcaseUrl.includes('drive.google.com') ? (
+              // Google Drive embedded preview
               <iframe
-                src={embedShowcaseUrl}
+                src={formattedShowcaseUrl}
                 title="Showcase Video"
                 className="absolute inset-0 w-full h-full opacity-60 group-hover:opacity-40 transition-opacity duration-700 pointer-events-none border-0"
                 allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
               />
             ) : (
+              // Direct video file
               <video
                 ref={showcaseVideoRef}
                 muted
@@ -215,7 +213,7 @@ export default function HeroSection({ onPlayShowreel, photos, showcaseVideoUrl, 
                 playsInline
                 poster={showcaseThumbnailUrl}
                 className="w-full h-full object-cover object-center opacity-60 group-hover:opacity-40 transition-opacity duration-700"
-                src={embedShowcaseUrl}
+                src={formattedShowcaseUrl}
               />
             )
           )}
