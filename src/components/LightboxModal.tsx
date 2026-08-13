@@ -73,21 +73,32 @@ export default function LightboxModal({
         
         {/* Video Player - Native HTML5 for full browser compatibility */}
         {streamUrl && (
-          <div className="w-full bg-black flex items-center justify-center overflow-hidden" style={{ aspectRatio: '16/9' }}>
-            <video
-              src={streamUrl}
-              autoPlay
-              controls
-              playsInline
-              controlsList="nodownload"
-              className="w-full h-full object-contain"
-              style={{ maxHeight: '80vh' }}
-            />
-            <div className="absolute top-4 left-4 pointer-events-none bg-black/60 backdrop-blur-sm px-3 py-1 rounded-full text-cream font-mono text-[9px] tracking-widest uppercase">
-              STUDIO ARCHIVE // CINEMATIC SOURCE // HI-RES STREAM
-            </div>
-          </div>
+  <div className="w-full bg-black flex items-center justify-center overflow-hidden" style={{ aspectRatio: '16/9' }}>
+        {streamUrl.includes('drive.google.com') ? (
+          // Use iframe for Google Drive videos
+          <iframe
+            src={streamUrl.replace('export=view', 'export=preview')}
+            allow="autoplay; fullscreen"
+            className="w-full h-full"
+            style={{ maxHeight: '80vh' }}
+          />
+        ) : (
+          // Use native video for other sources
+          <video
+            src={streamUrl}
+            autoPlay
+            controls
+            playsInline
+            controlsList="nodownload"
+            className="w-full h-full object-contain"
+            style={{ maxHeight: '80vh' }}
+          />
         )}
+    <div className="absolute top-4 left-4 pointer-events-none bg-black/60 backdrop-blur-sm px-3 py-1 rounded-full text-cream font-mono text-[9px] tracking-widest uppercase">
+      STUDIO ARCHIVE // CINEMATIC SOURCE // HI-RES STREAM
+    </div>
+  </div>
+)}
 
         {/* Image Stills - Responsive with no cropping */}
         {imageUrl && (
