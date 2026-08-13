@@ -578,7 +578,7 @@ export async function fetchDriveAssets(token: string): Promise<DriveData> {
         category: 'Cinema Showcase',
         tag: index % 2 === 0 ? 'Documentary' : 'Campaign',
         coverUrl: `https://lh3.googleusercontent.com/d/${file.id}`,
-        videoUrl: `https://drive.google.com/file/d/${file.id}/preview`
+        videoUrl: `https://drive.google.com/uc?export=view&id=${file.id}`
       };
     });
 
